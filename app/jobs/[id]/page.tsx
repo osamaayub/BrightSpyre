@@ -46,7 +46,7 @@ export default function JobPage() {
 
   if (loading)
     return (
-      <div className="text-center py-12 text-lg font-medium">Loading...</div>
+      <div className="text-center py-12 animate-pulse text-lg font-medium">Loading...</div>
     );
   if (error)
     return (

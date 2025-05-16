@@ -144,7 +144,7 @@ export function JobsList({ filters }: { filters: Filters }) {
     <div className="max-w-7xl mx-auto p-4 md:p-6">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Sidebar */}
-        <aside className="w-full md:w-1/3 lg:w-1/4 bg-gray-50 p-4 rounded shadow-md h-fit">
+        <aside className="w-full md:w-1/3 lg:w-1/4  bg-gray-50 p-4 rounded shadow-md h-fit">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Filters</h2>
           </div>

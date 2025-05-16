@@ -20,6 +20,7 @@ import { Key } from "react";
     category_name: string;
     organization: string;
     salary: number;
+    job_type:string
   };
   
 

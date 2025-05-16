@@ -20,6 +20,7 @@ export default function JobPage() {
       {/* Display Jobs List */}
       {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6"> */}
           <JobsList filters={filters} />
+
     </div>
   );
 }
