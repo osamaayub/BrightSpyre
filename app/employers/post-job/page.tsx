@@ -13,15 +13,21 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
+import { useForm } from "react-hook-form"
+import { PostSchemaForm } from "@/types/type"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { PostJobSchema } from "@/schemas/page"
 
 export default function PostJobPage() {
+  const {handleSubmit,register,formState:{errors}}=useForm<PostSchemaForm>({
+    resolver:zodResolver(PostJobSchema)
+  });
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+  const onSubmit = async (data:PostSchemaForm) => {
+   setIsSubmitting(true)
 
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500))
@@ -47,7 +53,7 @@ export default function PostJobPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <Card>
               <CardHeader>
                 <CardTitle>Job Details</CardTitle>
@@ -56,13 +62,15 @@ export default function PostJobPage() {
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="job-title">Job Title</Label>
-                  <Input id="job-title" placeholder="e.g. Senior Frontend Developer" required />
+                  <Input id="job-title" placeholder="Enter the title" {
+                    ...register("jobTitle")
+                  } />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="job-type">Job Type</Label>
-                    <Select defaultValue="full-time">
+                    <Select defaultValue="full-time" {...register("jobType")}>
                       <SelectTrigger id="job-type">
                         <SelectValue placeholder="Select job type" />
                       </SelectTrigger>
@@ -76,7 +84,7 @@ export default function PostJobPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="experience-level">Experience Level</Label>
-                    <Select defaultValue="mid-level">
+                    <Select defaultValue="mid-level" {...register("experienceLevel")}>
                       <SelectTrigger id="experience-level">
                         <SelectValue placeholder="Select experience level" />
                       </SelectTrigger>
@@ -93,11 +101,12 @@ export default function PostJobPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="location">Location</Label>
-                    <Input id="location" placeholder="e.g. San Francisco, CA" required />
+                    <Input id="location" placeholder="e.g. San Francisco, CA" 
+                    {...register("location")} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="remote-options">Remote Options</Label>
-                    <Select defaultValue="remote">
+                    <Select defaultValue="remote" {...register("location")}>
                       <SelectTrigger id="remote-options">
                         <SelectValue placeholder="Select remote option" />
                       </SelectTrigger>
@@ -113,11 +122,14 @@ export default function PostJobPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="salary-min">Salary Range (Min)</Label>
-                    <Input id="salary-min" type="number" placeholder="e.g. 80000" required />
+                    <Input id="salary-min" type="number" placeholder="e.g. 80000" 
+                    {...register("salaryMin")}/>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="salary-max">Salary Range (Max)</Label>
-                    <Input id="salary-max" type="number" placeholder="e.g. 120000" required />
+                    <Input id="salary-max" type="number" placeholder="e.g. 120000"  {
+                      ...register("salaryMax")
+                    } />
                   </div>
                 </div>
 
@@ -127,7 +139,7 @@ export default function PostJobPage() {
                     id="job-description"
                     placeholder="Describe the role, responsibilities, and ideal candidate..."
                     rows={8}
-                    required
+                    {...register("JobDescription")}
                   />
                 </div>
 
@@ -137,7 +149,7 @@ export default function PostJobPage() {
                     id="requirements"
                     placeholder="List the skills, qualifications, and experience required..."
                     rows={5}
-                    required
+                    {...register("requirements")}
                   />
                 </div>
 
@@ -147,6 +159,7 @@ export default function PostJobPage() {
                     id="benefits"
                     placeholder="List the benefits and perks offered with this position..."
                     rows={5}
+                    {...register("benefits")}
                   />
                 </div>
 

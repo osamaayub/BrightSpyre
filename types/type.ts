@@ -34,5 +34,7 @@ export interface ApplyButtonProps {
     experienceLevel:"entry-level"|"mid-level"|"senior"|"executive",
     JobDescription:string,
     requirements:string,
-    benefits:string
+    benefits:string,
+    salaryMin:number,
+    salaryMax:number
   }
