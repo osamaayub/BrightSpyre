@@ -39,3 +39,48 @@ export const applySchema = z.object({
   coverLetter: z.string().optional(),
   linkedin: z.string().url("Invalid URL").optional(),
 })
+
+
+export const PostJobSchema = z.object({
+  "job-title": z
+    .string()
+    .min(5, { message: "Job Title must be at least 5 characters long" }),
+
+  "job-type": z
+    .string()
+    .nonempty({ message: "Job Type is required" }),
+
+  "experience-level": z
+    .string()
+    .nonempty({ message: "Experience Level is required" }),
+
+  "location": z
+    .string()
+    .nonempty({ message: "Location is required" }),
+
+  "remote-options": z
+    .string()
+    .nonempty({ message: "Remote option must be selected" }),
+
+  "salary-min": z
+    .string()
+    .regex(/^\d+$/, { message: "Minimum salary must be a number" }),
+
+  "salary-max": z
+    .string()
+    .regex(/^\d+$/, { message: "Maximum salary must be a number" }),
+
+  "job-description": z
+    .string()
+    .min(50, { message: "Job description must be at least 50 characters" }),
+
+  "requirements": z
+    .string()
+    .min(10, { message: "Requirements are required" }),
+
+  "benefits": z
+    .string()
+    .min(10, { message: "Benefits are required" }),
+
+  "featured": z.boolean().optional(), // optional checkbox
+})
