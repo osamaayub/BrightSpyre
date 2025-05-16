@@ -29,5 +29,10 @@ export interface ApplyButtonProps {
 
   export interface PostSchemaForm{
     jobTitle:string,
-    jobType:string,
+    jobType:"full-time"|"part-time"|"contract"|"internship",
+    location:"on-site"|"remote"|"hybrid",
+    experienceLevel:"entry-level"|"mid-level"|"senior"|"executive",
+    JobDescription:string,
+    requirements:string,
+    benefits:string
   }
