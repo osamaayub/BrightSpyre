@@ -16,6 +16,6 @@ export function cleanDescription(html: string) {
       .split('\n')
       .map(line => line.trim())
       .filter(line => /^[-•*]/.test(line)) // Match lines starting with -, •, or *
-      .map(line => line.replace(/^[-•*]\s*/, '')); // Remove the symbol
+      .map(line => line.replace(/^[-*]\s*/, '')); // Remove the symbol
   }
   
