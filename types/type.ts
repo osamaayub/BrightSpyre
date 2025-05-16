@@ -26,3 +26,8 @@ export interface ApplyButtonProps {
     linkedin?:string,
     coverLetter?:string
   }
+
+  export interface PostSchemaForm{
+    jobTitle:string,
+    jobType:string,
+  }

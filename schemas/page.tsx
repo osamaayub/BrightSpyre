@@ -40,47 +40,23 @@ export const applySchema = z.object({
   linkedin: z.string().url("Invalid URL").optional(),
 })
 
-
+//postJobSchema
 export const PostJobSchema = z.object({
-  "job-title": z
-    .string()
-    .min(5, { message: "Job Title must be at least 5 characters long" }),
-
-  "job-type": z
-    .string()
-    .nonempty({ message: "Job Type is required" }),
-
-  "experience-level": z
-    .string()
-    .nonempty({ message: "Experience Level is required" }),
-
-  "location": z
-    .string()
-    .nonempty({ message: "Location is required" }),
-
-  "remote-options": z
-    .string()
-    .nonempty({ message: "Remote option must be selected" }),
-
-  "salary-min": z
-    .string()
-    .regex(/^\d+$/, { message: "Minimum salary must be a number" }),
-
-  "salary-max": z
-    .string()
-    .regex(/^\d+$/, { message: "Maximum salary must be a number" }),
-
-  "job-description": z
-    .string()
-    .min(50, { message: "Job description must be at least 50 characters" }),
-
-  "requirements": z
-    .string()
-    .min(10, { message: "Requirements are required" }),
-
-  "benefits": z
-    .string()
-    .min(10, { message: "Benefits are required" }),
-
-  "featured": z.boolean().optional(), // optional checkbox
+  "job-title": z.string().min(50, { message: "Job Title must be at least 50 characters" }),
+  "job-type": z.enum(["full-time", "part-time", "contract", "internship"], {
+    message: "Select a valid job type",
+  }),
+  "experience-level": z.enum(["entry-level", "mid-level", "senior", "executive"], {
+    message: "Select a valid experience level",
+  }),
+  location: z.string().min(1, { message: "Location is required" }),
+  "remote-options": z.enum(["on-site", "remote", "hybrid"], {
+    message: "Select a valid remote option",
+  }),
+  "salary-min": z.string().regex(/^\d+$/, { message: "Minimum salary must be a number" }),
+  "salary-max": z.string().regex(/^\d+$/, { message: "Maximum salary must be a number" }),
+  "job-description": z.string().min(250, { message: "Job description must be at least 250 characters" }),
+  requirements: z.string().min(1, { message: "Requirements are required" }),
+  benefits: z.string().min(350, { message: "Perks & benefits are required" }),
 })
+
