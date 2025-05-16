@@ -1,7 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import { SaveJobButton } from "./save-job-button";
+import { SaveJobButton } from "../saveButon/save-job-button";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cleanDescription } from "@/helpers/page";

@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { Filters } from "@/types/filter";
-import JobCard from "@/components/JobCard";
-import { Pagination } from "@/components/pagination-job";
+import JobCard from "@/components/jobCards/JobCard";
+import { Pagination } from "@/components/pagination/pagination-job";
 
 
 export function JobsList({ filters }: { filters: Filters }) {

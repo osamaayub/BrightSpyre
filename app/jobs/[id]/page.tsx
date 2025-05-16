@@ -17,8 +17,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ApplyButton } from '@/components/apply-button';
-import { SaveJobButton } from '@/components/save-job-button';
+import { ApplyButton } from '@/components/apply-button/apply-button';
+import { SaveJobButton } from '@/components/saveButon/save-job-button';
 import { cleanDescription } from '@/helpers/page';
 
 export default function JobPage() {

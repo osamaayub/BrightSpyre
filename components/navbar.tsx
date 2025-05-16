@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HeaderButtons } from "./header-buttons";
+import { HeaderButtons } from "./header-buttons/header-buttons";
 
 
 

@@ -1,7 +1,7 @@
 "use client";
 
 
-import { JobsList } from "@/components/Jobs-list";
+import { JobsList } from "@/components/jobLists/Jobs-list";
 import { Filters } from "@/types/filter";
 import { useState } from "react";
 
