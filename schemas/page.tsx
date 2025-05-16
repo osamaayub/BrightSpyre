@@ -42,20 +42,20 @@ export const applySchema = z.object({
 
 //postJobSchema
 export const PostJobSchema = z.object({
-  "job-title": z.string().min(50, { message: "Job Title must be at least 50 characters" }),
-  "job-type": z.enum(["full-time", "part-time", "contract", "internship"], {
+  "jobTitle": z.string().min(50, { message: "Job Title must be at least 50 characters" }),
+  "jobType": z.enum(["full-time", "part-time", "contract", "internship"], {
     message: "Select a valid job type",
   }),
-  "experience-level": z.enum(["entry-level", "mid-level", "senior", "executive"], {
+  "experienceLevel": z.enum(["entry-level", "mid-level", "senior", "executive"], {
     message: "Select a valid experience level",
   }),
   location: z.string().min(1, { message: "Location is required" }),
   "remote-options": z.enum(["on-site", "remote", "hybrid"], {
     message: "Select a valid remote option",
   }),
-  "salary-min": z.string().regex(/^\d+$/, { message: "Minimum salary must be a number" }),
-  "salary-max": z.string().regex(/^\d+$/, { message: "Maximum salary must be a number" }),
-  "job-description": z.string().min(250, { message: "Job description must be at least 250 characters" }),
+  "salaryMin": z.string().regex(/^\d+$/, { message: "Minimum salary must be a number" }),
+  "salaryMax": z.string().regex(/^\d+$/, { message: "Maximum salary must be a number" }),
+  "jobDescription": z.string().min(250, { message: "Job description must be at least 250 characters" }),
   requirements: z.string().min(1, { message: "Requirements are required" }),
   benefits: z.string().min(350, { message: "Perks & benefits are required" }),
 })

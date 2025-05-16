@@ -39,7 +39,7 @@ export default function PostJobPage() {
       description: "Your job has been posted and is now live.",
     })
 
-    router.push("/employers/dashboard")
+    router.push("/employers/post-job")
   }
 
   return (
@@ -62,9 +62,9 @@ export default function PostJobPage() {
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="job-title">Job Title</Label>
-                  <Input id="job-title" placeholder="Enter the title" {
-                    ...register("jobTitle")
-                  } />
+                  <Input id="job-title" placeholder="Enter the title" 
+                  {  ...register("jobTitle")} />
+                  {errors.jobTitle && <p className="text-sm text-red-600">{errors.jobTitle.message}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -81,6 +81,7 @@ export default function PostJobPage() {
                         <SelectItem value="internship">Internship</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.jobType && <p className="text-sm text-red-600">{errors.jobType.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="experience-level">Experience Level</Label>
@@ -95,6 +96,7 @@ export default function PostJobPage() {
                         <SelectItem value="executive">Executive</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.experienceLevel && <p className="text-sm text-red-600">{errors.experienceLevel.message}</p>}
                   </div>
                 </div>
 
@@ -103,6 +105,7 @@ export default function PostJobPage() {
                     <Label htmlFor="location">Location</Label>
                     <Input id="location" placeholder="e.g. San Francisco, CA" 
                     {...register("location")} />
+                    {errors.location && <p className="text-sm text-red-600">{errors.location.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="remote-options">Remote Options</Label>
@@ -116,6 +119,7 @@ export default function PostJobPage() {
                         <SelectItem value="hybrid">Hybrid</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.location && <p className="text-sm text-red-600">{errors.location.message}</p>}
                   </div>
                 </div>
 
@@ -124,12 +128,14 @@ export default function PostJobPage() {
                     <Label htmlFor="salary-min">Salary Range (Min)</Label>
                     <Input id="salary-min" type="number" placeholder="e.g. 80000" 
                     {...register("salaryMin")}/>
+                    {errors.salaryMin && <p className="text-sm text-red-600">{errors.salaryMin.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="salary-max">Salary Range (Max)</Label>
                     <Input id="salary-max" type="number" placeholder="e.g. 120000"  {
                       ...register("salaryMax")
                     } />
+                     {errors.salaryMax && <p className="text-sm text-red-600">{errors.salaryMax.message}</p>}
                   </div>
                 </div>
 
@@ -141,6 +147,7 @@ export default function PostJobPage() {
                     rows={8}
                     {...register("JobDescription")}
                   />
+                  {errors.JobDescription && <p className="text-sm text-red-600">{errors.JobDescription.message}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -151,6 +158,7 @@ export default function PostJobPage() {
                     rows={5}
                     {...register("requirements")}
                   />
+                  {errors.requirements&& <p className="text-sm text-red-600">{errors.requirements.message}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -161,6 +169,7 @@ export default function PostJobPage() {
                     rows={5}
                     {...register("benefits")}
                   />
+                   {errors.benefits&& <p className="text-sm text-red-600">{errors.benefits.message}</p>}
                 </div>
 
                 <div className="flex items-center space-x-2">
