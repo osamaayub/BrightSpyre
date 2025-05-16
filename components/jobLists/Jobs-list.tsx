@@ -2,74 +2,67 @@
 
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Filters } from "@/types/filter";
+import { Filters, Job, FilterToggles } from "@/types/filter";
 import JobCard from "@/components/jobCards/JobCard";
 import { Pagination } from "@/components/pagination/pagination-job";
 
 
+
+
 export function JobsList({ filters }: { filters: Filters }) {
-  const [state, setState] = useState({
-    jobs: [] as any[],
-    loading: true,
-    error: null as string | null,
-    currentPage: 1,
-    activeFilters: filters,
-    filterToggles: {
-      category: true,
-      organization: true,
-      city: true,
-    },
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeFilters, setActiveFilters] = useState<Filters>(filters);
+  const [filterToggles, setFilterToggles] = useState<FilterToggles>({
+    category: true,
+    organization: true,
+    city: true,
   });
 
   const jobsPerPage = 90;
 
   useEffect(() => {
+    async function fetchJobs() {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get("/api/jobs");
+        setJobs(response.data.results || []);
+      } catch (err: any) {
+        setError(err.response?.data?.message || "An unexpected error occurred.");
+      } finally {
+        setLoading(false);
+      }
+    }
     fetchJobs();
   }, [filters]);
 
-  async function fetchJobs() {
-    setState((prev) => ({ ...prev, loading: true }));
-    try {
-      const response = await axios.get("/api/jobs");
-      setState((prev) => ({ ...prev, jobs: response.data.results || [], loading: false }));
+  const toggleFilterSection = (key: keyof FilterToggles) => {
+    setFilterToggles((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
-    } catch (err: any) {
-      setState((prev) => ({
-        ...prev,
-        error: err.response?.data?.message || "An unexpected error occurred.",
-        loading: false,
-      }));
-    }
-  }
+  const resetFilters = () => {
+    setActiveFilters({
+      category_name: [],
+      organization: [],
+      city: [],
+      country: [],
+    });
+    setCurrentPage(1);
+  };
 
   const handleFilterChange = (filterKey: keyof Filters, value: any) => {
-    setState((prev) => ({
-      ...prev,
-      activeFilters: { ...prev.activeFilters, [filterKey]: value },
-    }));
+    setActiveFilters((prev) => ({ ...prev, [filterKey]: value }));
+    setCurrentPage(1);
   };
 
-  // Reset Filters
-  const resetFilters = () => {
-    setState((prev) => ({
-      ...prev,
-      activeFilters: {
-        category_name: [],
-        organization: [],
-        city: [],
-        country: [],
-      },
-      currentPage: 1,
-    }));
-  };
-
-
-  // Filter jobs based on filters
   const filteredJobs = useMemo(() => {
     const seen = new Map();
 
-    state.jobs.forEach((job) => {
-      const { category_name, organization, city, country } = state.activeFilters;
+    jobs.forEach((job) => {
+      const { category_name, organization, city, country } = activeFilters;
 
       const matchesCategory =
         category_name.length === 0 ||
@@ -81,25 +74,23 @@ export function JobsList({ filters }: { filters: Filters }) {
             .includes(filterCategory.toLowerCase())
         );
 
-        const matchesOrganization =
+      const matchesOrganization =
         organization.length === 0 ||
         organization.some((filterOrganization) => {
           const orgs = job.organization
             ?.toLowerCase()
             .split(/[,&]/)
-            .map((org:string) => org.trim())||[]
-      
-          return orgs?.includes(filterOrganization.toLowerCase());
-        });
-      
+            .map((org: string) => org.trim()) || [];
 
+          return orgs.includes(filterOrganization.toLowerCase());
+        });
 
       const matchesCity =
         city.length === 0 ||
         city.some((filterCity) =>
           job.city
             .toLowerCase()
-            .split(',')
+            .split(",")
             .map((c: string) => c.trim())
             .includes(filterCity.toLowerCase())
         );
@@ -109,286 +100,184 @@ export function JobsList({ filters }: { filters: Filters }) {
         country.map((c) => c.toLowerCase()).includes(job.country?.toLowerCase());
 
       if (matchesCategory && matchesOrganization && matchesCity && matchesCountry) {
-        seen.set(job.id, job); // assumes job.id is unique
+        seen.set(job.id, job);
       }
     });
 
     return Array.from(seen.values());
-  }, [state.activeFilters, state.jobs]);
+  }, [activeFilters, jobs]);
 
-  // Categories filter
-  const uniqueCategories = useMemo(() => {
-    const categorySet = new Set<string>();
-    const count: Record<string, number> = {};
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
 
-    state.jobs.forEach((job) => {
-      if (!job.category_name) return;
+  function getUniqueAndCount(field: keyof typeof activeFilters) {
+    const counts: Record<string, number> = {};
 
-      job.category_name
-        .toLowerCase()
+    jobs.forEach((job) => {
+      const values = job[field]
+        ?.toLowerCase()
         .split(/[,&]/)
-        .map((cat: string) => cat.trim())
-        .filter(Boolean)
-        .forEach((cat: string) => {
-          categorySet.add(cat);
-          count[cat] = (count[cat] || 0) + 1;
-        });
+        .map((v: string) => v.trim())
+        .filter((v) =>
+          // allow valid city names only
+          /^[a-z\s]{3,}$/i.test(v) && // at least 3 letters, only alphabets & spaces
+          !/\d/.test(v) &&            // no numbers
+          !/[^\w\s]/.test(v)          // no special characters
+        );
+
+      values?.forEach((val: string) => {
+        counts[val] = (counts[val] || 0) + 1;
+      });
     });
 
-    return {
-      categories: Array.from(categorySet).sort(),
-      count,
-    };
-  }, [state.jobs]);
-
-
-  const normalizeOrganization=(org:string)=>{
-   return  org.toLowerCase()
-    .replace(/&/g,"and")
-    .replace(/\s+/g," ")
-    .trim()
-
+    return counts;
   }
-  //organizations filter
-  const uniqueOrganizations = useMemo(() => {
-    const count: Record<string, number> = {};
-    const orgSet = new Set<string>();
-  
-    state.jobs.forEach((job) => {
-      if (!job.organization) return;
-  
-      // Only split by comma (not by &), and normalize
-      job.organization
-        .toLowerCase()
-        .split(/,&|&/)
-        .map((org:string) => normalizeOrganization(org))
-        .filter(Boolean)
-        .forEach((org:string) => {
-          orgSet.add(org);
-          count[org] = (count[org] || 0) + 1;
-        });
-    });
-  
-    return {
-      organizations: Array.from(orgSet).sort(), // deduplicated and sorted
-      count,
-    };
-  }, [state.jobs]);
-  
 
-  
-
-
-
-
-  const uniqueLocations = useMemo(() => {
-    const separators = /[,().\-–;]| and /gi;
-    const noiseWords = ['district', 'remote', 'frequent travel', 'also travel', 'if required'];
-  
-    const cityCorrections: Record<string, string> = {
-      'islmabad': 'islamabad',
-      'i khan': 'd.i khan',
-      'dik khan': 'd.i khan',
-      'balouchistan': 'balochistan',
-      'mandi bahaudin': 'mandi bahauddin',
-    };
-  
-    const citiesSet = new Set<string>();
-    const countriesSet = new Set<string>();
-    const cityCount: Record<string, number> = {};
-    const countryCount: Record<string, number> = {};
-  
-    state.jobs.forEach((job) => {
-      if (job.city) {
-        const parts = job.city
-          .toLowerCase()
-          .split(',')
-          .map((part: string) => part.trim())
-          .filter((part: string) => part.length > 2 && !noiseWords.some(noise => part.includes(noise)))
-          .map((part: string) => cityCorrections[part] || part);
-  
-        parts.forEach((city: string) => {
-          citiesSet.add(city);
-          cityCount[city] = (cityCount[city] || 0) + 1;
-        });
-      }
-  
-      if (job.country) {
-        const country = job.country.toLowerCase().trim();
-        countriesSet.add(country);
-        countryCount[country] = (countryCount[country] || 0) + 1;
-      }
-    });
-  
-    return {
-      cities: Array.from(citiesSet).sort(),
-      countries: Array.from(countriesSet).sort(),
-      cityCount,
-      countryCount,
-    };
-  }, [state.jobs]);
-  
-
-
-
-
-
-  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
-
-  const paginatedJobs = filteredJobs.slice(
-    (state.currentPage - 1) * jobsPerPage,
-    state.currentPage * jobsPerPage
-  );
-
-  if (state.loading) return <div className="text-center text-gray-600">Loading jobs...</div>;
-  if (state.error) return <div className="text-red-600 text-center">{state.error}</div>;
+  const categoryCounts = getUniqueAndCount("category_name");
+  const organizationCounts = getUniqueAndCount("organization");
+  const cityCounts = getUniqueAndCount("city");
 
   return (
-    <div className="flex flex-col lg:flex-row">
-      {/* Filters Sidebar */}
-      <div className="w-full lg:w-1/4 p-4 border-b  rounded lg:border-b-0 lg:border-r border-gray-300 bg-gray-300">
-        <h2 className="text-lg font-semibold mb-4 text-gray-800">Filters</h2>
-
-        {/* Category Accordion */}
-        <div>
-          <h3
-            className="text-sm font-medium text-gray-700 mb-2 cursor-pointer"
-            onClick={() =>
-              setState((prev) => ({
-                ...prev,
-                filterToggles: { ...prev.filterToggles, category: !prev.filterToggles.category },
-              }))
-            }
-          >
-            {state.filterToggles.category ? "▲" : "▼"} Category
-          </h3>
-          {state.filterToggles.category && (
-            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-              {/* categories shown with jobs count */}
-              {uniqueCategories.categories.map((category) => (
-                <label key={category} className="text-sm text-gray-600">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={state.activeFilters.category_name.includes(category)}
-                    onChange={(e) => {
-                      const updated = e.target.checked
-                        ? [...state.activeFilters.category_name, category]
-                        : state.activeFilters.category_name.filter((c) => c !== category);
-                      handleFilterChange("category_name", updated);
-                    }}
-                  />
-                  {category} {uniqueCategories.count[category]}
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Organization Accordion */}
-        <div className="mt-4">
-          <h3
-            className="text-sm font-medium text-gray-700 mb-2 cursor-pointer"
-            onClick={() =>
-              setState((prev) => ({
-                ...prev,
-                filterToggles: { ...prev.filterToggles, organization: !prev.filterToggles.organization },
-              }))
-            }
-          >
-            {state.filterToggles.organization ? "▲" : "▼"} Organization
-          </h3>
-          {state.filterToggles.organization && (
-            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-              {/* organizations shown with jobs count */}
-              {uniqueOrganizations.organizations.map((org) => (
-                <label key={org} className="text-sm text-gray-600">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={state.activeFilters.organization.includes(org)}
-                    onChange={(e) => {
-                      const updated = e.target.checked
-                        ? [...state.activeFilters.organization, org]
-                        : state.activeFilters.organization.filter((o) => o !== org);
-                      handleFilterChange("organization", updated);
-                    }}
-                  />
-                  {org} {uniqueOrganizations.count[org]}
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* City Accordion */}
-        <div className="mt-4">
-          <h3
-            className="text-sm font-medium text-gray-700 mb-2 cursor-pointer"
-            onClick={() =>
-              setState((prev) => ({
-                ...prev,
-                filterToggles: { ...prev.filterToggles, city: !prev.filterToggles.city },
-              }))
-            }
-          >
-            {state.filterToggles.city ? "▲" : "▼"} Location
-          </h3>
-          {state.filterToggles.city && (
-            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-              {uniqueLocations.cities.map((city: string, index: number) => (
-                <label key={`${city}-${index}`} className="text-sm text-gray-600">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={state.activeFilters.city.includes(city)}
-                    onChange={(e) => {
-                      const updated = e.target.checked
-                        ? [...state.activeFilters.city, city]
-                        : state.activeFilters.city.filter((c) => c !== city);
-                      handleFilterChange("city", updated);
-                    }}
-                  />
-                  {city}  {uniqueLocations.cityCount[city]}
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
-        {/* Actions */}
-        <div className="flex items-center justify-between mt-4 gap-2">
-          <button
-            onClick={resetFilters}
-            className="w-full border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
-          >
-            Clear All
-          </button>
-        </div>
-      </div>
-
-      {/* Job List Section */}
-      <div className="w-full lg:w-3/4 p-4">
-        <div className="mb-5 text-black">{paginatedJobs.length} of {filteredJobs.length} jobs</div>
-        {filteredJobs.length === 0 ? (
-          <div className="text-center text-gray-700">No Jobs available</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {paginatedJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
+    <div className="max-w-7xl mx-auto p-4 md:p-6">
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Sidebar */}
+        <aside className="w-full md:w-1/3 lg:w-1/4 bg-gray-50 p-4 rounded shadow-md h-fit">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Filters</h2>
+            <button
+              onClick={resetFilters}
+              className="text-sm bg-blue-500 px-3 py-2 rounded text-black hover:bg-purple-600 hover:underline"
+            >
+              Clear All
+            </button>
           </div>
-        )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex justify-center">
-            <Pagination
-              totalPages={totalPages}
-              currentPage={state.currentPage}
-              onPageChange={(page) => setState((prev) => ({ ...prev, currentPage: page }))}
-            />
+          {/* Category Filter */}
+          <div className="mb-4">
+            <h3
+              className="cursor-pointer font-medium mb-2"
+              onClick={() => toggleFilterSection("category")}
+            >
+              Categories {filterToggles.category ? "▼" : "▶"}
+            </h3>
+            {filterToggles.category && (
+              <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
+                {Object.entries(categoryCounts).map(([cat, count]) => (
+                  <label key={cat} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={activeFilters.category_name.includes(cat)}
+                      onChange={(e) => {
+                        let newFilters = [...activeFilters.category_name];
+                        if (e.target.checked) {
+                          newFilters.push(cat);
+                        } else {
+                          newFilters = newFilters.filter((f) => f !== cat);
+                        }
+                        handleFilterChange("category_name", newFilters);
+                      }}
+                    />
+                    <span>{cat} ({count})</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Organization Filter */}
+          <div className="mb-4">
+            <h3
+              className="cursor-pointer font-medium mb-2"
+              onClick={() => toggleFilterSection("organization")}
+            >
+              Organizations {filterToggles.organization ? "▼" : "▶"}
+            </h3>
+            {filterToggles.organization && (
+              <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
+                {Object.entries(organizationCounts).map(([org, count]) => (
+                  <label key={org} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={activeFilters.organization.includes(org)}
+                      onChange={(e) => {
+                        let newFilters = [...activeFilters.organization];
+                        if (e.target.checked) {
+                          newFilters.push(org);
+                        } else {
+                          newFilters = newFilters.filter((f) => f !== org);
+                        }
+                        handleFilterChange("organization", newFilters);
+                      }}
+                    />
+                    <span>{org} ({count})</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* City Filter */}
+          <div>
+            <h3
+              className="cursor-pointer font-medium mb-2"
+              onClick={() => toggleFilterSection("city")}
+            >
+              Cities {filterToggles.city ? "▼" : "▶"}
+            </h3>
+            {filterToggles.city && (
+              <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
+                {Object.entries(cityCounts).map(([city, count]) => (
+                  <label key={city} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={activeFilters.city.includes(city)}
+                      onChange={(e) => {
+                        let newFilters = [...activeFilters.city];
+                        if (e.target.checked) {
+                          newFilters.push(city);
+                        } else {
+                          newFilters = newFilters.filter((f) => f !== city);
+                        }
+                        handleFilterChange("city", newFilters);
+                      }}
+                    />
+                    <span>{city} ({count})</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1">
+
+          {loading ? (
+            <p className="text-center text-gray-600">Loading jobs...</p>
+          ) : error ? (
+            <p className="text-center text-red-600">{error}</p>
+          ) : (
+            <>
+              <div className="mb-5 text-black">{currentJobs.length} of {filteredJobs.length} jobs </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                {currentJobs.length === 0 ? (
+                  <p className="text-center col-span-full">No jobs found.</p>
+                ) : (
+                  currentJobs.map((job) => <JobCard key={job.id} job={job} />)
+                )}
+              </div>
+              <div className="mt-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={jobsPerPage}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            </>
+          )}
+        </main>
       </div>
     </div>
   );

@@ -36,7 +36,11 @@ import { Key } from "react";
     url:string
   }
 
-
+  export type FilterToggles = {
+    category: boolean;
+    organization: boolean;
+    city: boolean;
+  };
 
 
 
