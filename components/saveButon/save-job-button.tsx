@@ -65,7 +65,7 @@ export function SaveJobButton({
         </>
       ) : (
         <>
-          <Bookmark className="h-4 w-4 p-2" />
+          <Bookmark className="h-4 w-4 p-2 hover:bg-blue-700" />
           Save
         </>
       )}

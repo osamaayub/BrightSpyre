@@ -38,7 +38,16 @@ const JobCard = ({ job }: { job: Job }) => {
             </Link>
 
           </h3>
-          <li className="text-sm text-gray-600 line-clamp-3">{cleanDescription(job.description)}</li>
+          <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
+            {cleanDescription(job.description)
+              .split(/[\n.]/) // split by newline or period
+              .filter((line) => line.trim() !== "") // remove empty lines
+              .slice(0, 2) // take first 2 items
+              .map((point, index) => (
+                <li key={index}>{point.trim()}</li>
+              ))}
+          </ul>
+
 
           {/* Location & Category */}
           <div className="flex flex-col text-sm gap-2  pt-2">
@@ -49,15 +58,22 @@ const JobCard = ({ job }: { job: Job }) => {
             {job.organization && <Badge className="bg-green-100 break-words mr-2 text-green-800">{job.organization}</Badge>}
           </div>
         </div>
-        <div className="flex flex-col  flex-wrap text-sm gap-4  pt-2">
-          {job.salary && <Badge className="bg-blue-100 whitespace-nowrap text-blue-800">${job.salary.toString()}</Badge>}
-          <p className="mt-10 text-black">{job.end_date}</p>
+        {/* LEFT SIDE: Salary and End Date */}
+        <div className="flex justify-between items-center text-sm gap-2 min-h-[24px]">
+          {job.salary ? (
+            <Badge className="bg-blue-100 whitespace-nowrap text-blue-800">
+              ${job.salary.toString()}
+            </Badge>
+          ) : (
+            <span className="text-gray-400 italic text-xs">Salary not disclosed</span>
+          )}
+          <p className="text-black text-xs">{job.end_date}</p>
         </div>
 
         {/* Footer */}
         <div className="mt-auto flex flex-col sm:flex-row sm:items-center sm:gap-3 sm:justify-between">
           <div className="flex flex-col sm:w-full  justify-end sm:flex-row sm:items-center sm:gap-3">
-            <SaveJobButton jobId={job.id} jobTitle={job.title} />
+            <SaveJobButton jobId={job.id} jobTitle={job.title} className="hover:bg:blue-500" />
             <Link href={`/jobs/${job.encrypted_id}`}>
               <Button size="sm" className="text-sm">View Job</Button>
             </Link>
