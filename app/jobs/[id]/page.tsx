@@ -44,17 +44,16 @@ export default function JobPage() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="text-center py-12 animate-pulse text-lg font-medium">Loading...</div>
-    );
-  if (error)
-    return (
-      <div className="text-center py-12 text-red-600 font-semibold">{error}</div>
-    );
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {loading ? (
+        <p className="text-center text-gray-600">Loading jobs...</p>
+      ): error ? (
+        <p className="text-center text-red-600">{error}</p>
+      ):(
+
+        <>
+
       {/* Back button */}
       <div className="mb-8">
         <Link href="/jobs">
@@ -175,6 +174,8 @@ export default function JobPage() {
           </Card>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }
