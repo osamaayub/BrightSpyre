@@ -58,14 +58,15 @@ const JobCard = ({ job }: { job: Job }) => {
               />
             )}
           </div>
-          <div className="flex justify-between text-sm text-gray-600 px-1">
-            <p className="text-xs text-gray-400">{job.country}</p>
+          <div className="flex justify-between  items-center uppercase text-gray-600 px-1">
+            <p className="text-text-base text-gray-400">{job.country}</p>
           </div>
         </div>
         {/* Category */}
         <div className="uppercase  text-sm text-gray-400 font-bold">
           {job.category_name}
         </div>
+        
         {/* Job Title & Posted Days Ago */}
         <div className="flex justify-between items-center">
           <h3 className="text-sm font-medium text-blue-700 underline truncate">
@@ -73,7 +74,7 @@ const JobCard = ({ job }: { job: Job }) => {
               {job.title}
             </Link>
           </h3>
-          <p className="text-xs text-gray-400 text-right whitespace-nowrap">{postedDaysAgo}</p>
+          <p className="text-sm text-gray-400 uppercase text-right whitespace-nowrap">{postedDaysAgo}</p>
         </div>
 
         {/* Job Description */}
