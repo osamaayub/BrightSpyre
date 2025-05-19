@@ -263,7 +263,7 @@ export function JobsList({ filters }: { filters: Filters }) {
           ) : (
             <>
               <div className="mb-5 text-black">{currentJobs.length} of {filteredJobs.length} jobs </div>
-              <div className="grid grid-cols-1 gap-4 max-w-2xl mx-auto px-4">
+              <div className="grid grid-cols-1 gap-4 max-w-xl mx-auto px-4">
 
                 {currentJobs.length === 0 ? (
                   <p className="text-center col-span-full">No jobs found.</p>
