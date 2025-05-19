@@ -6,24 +6,11 @@ import { Button } from "@/components/ui/button";
 import { cleanDescription } from "@/helpers/page";
 import { Job } from "@/types/filter";
 
-import {estimateEquity,getPostedDaysAgo } from "@/helpers/page";
+import {formatCities,getPostedDaysAgo } from "@/helpers/page";
 
-
-
-
-
-// Limit displayed cities to 3 maximum and remove extra separators
-const maxCitiesToShow = 3;
-const formatCities = (cityString: string): string => {
-  const cityList = cityString.split(/[,.]/).map(city => city.trim()).filter((city=>city!=""));
-  return cityList.length > maxCitiesToShow
-    ? `${cityList.slice(0, maxCitiesToShow).join(" • ")} +${cityList.length - maxCitiesToShow} more`
-    : cityList.join(" • ");
-};
 
 const JobCard = ({ job }: { job: Job }) => {
   const postedDaysAgo = job.end_date ? getPostedDaysAgo(job.end_date) : "Unknown";
-  const equity = job.salary ? estimateEquity(job.salary) : "Equity not provided";
   const formattedCity = job.city ? formatCities(job.city):"";
   const salaryText = job.salary ? `${job.salary.toLocaleString()}` : "Salary not disclosed";
 

@@ -29,3 +29,12 @@ export const getPostedDaysAgo = (endDate: string): string => {
   const daysAgo = differenceInDays(new Date(), parseDate(endDate));
   return `Posted ${daysAgo} days ago`;
 };
+
+// Limit displayed cities to 3 maximum and remove extra separators
+const maxCitiesToShow = 3;
+export const formatCities = (cityString: string): string => {
+  const cityList = cityString.split(/[,.]/).map(city => city.trim()).filter((city=>city!=""));
+  return cityList.length > maxCitiesToShow
+    ? `${cityList.slice(0, maxCitiesToShow).join(" • ")} +${cityList.length - maxCitiesToShow} more`
+    : cityList.join(" • ");
+};
