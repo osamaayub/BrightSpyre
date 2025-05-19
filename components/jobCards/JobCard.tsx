@@ -33,7 +33,7 @@ const JobCard = ({ job }: { job: Job }) => {
         {/* Job Info */}
         <div className="flex flex-col flex-grow space-y-2">
           <h3 className="text-sm font-medium text-blue-700 underline truncate">
-            <Link href={`/jobs/${job.id}`} className="hover:text-blue-600 transition-colors duration-300 whitespace-nowrap">
+            <Link href={`/jobs/${job.encrypted_id}`} className="hover:text-blue-600 transition-colors duration-300 whitespace-nowrap">
               {job.title}
             </Link>
 
