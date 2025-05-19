@@ -7,14 +7,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { FormData } from "@/types/type";
 
-interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  subject: string;
-  message: string;
-}
+
 
 export default function ContactForm() {
   const [formData, setFormData] = useState<FormData>({

@@ -16,7 +16,7 @@ export async function sendEmail(formData: FormData) {
         const { firstName, lastName, email, subject, message } = formData;
 
         const response = await resend.emails.send({
-            from: 'contact@yourdomain.com', // Replace with a verified sender
+            from: 'osama.ayubwebdev@gmail.com', // Replace with a verified sender
             to: 'support@brightspyre.com',
             subject: subject,
             html: `<p><strong>Name:</strong> ${firstName} ${lastName}</p>

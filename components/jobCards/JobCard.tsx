@@ -34,10 +34,6 @@ const JobCard = ({ job }: { job: Job }) => {
             <p className="text-text-base text-gray-400">{job.country}</p>
           </div>
         </div>
-        {/* Category */}
-        <div className="uppercase  text-sm text-gray-400 font-bold">
-          {job.category_name}
-        </div>
         
         {/* Job Title & Posted Days Ago */}
         <div className="flex justify-between items-center">
@@ -47,6 +43,10 @@ const JobCard = ({ job }: { job: Job }) => {
             </Link>
           </h3>
           <p className="text-sm text-gray-400 uppercase text-right whitespace-nowrap">{postedDaysAgo}</p>
+        </div>
+        {/* Category */}
+        <div className="uppercase  text-sm text-gray-400 font-bold">
+          {job.category_name}
         </div>
 
         {/* Job Description */}

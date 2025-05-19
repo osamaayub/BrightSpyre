@@ -38,3 +38,11 @@ export interface ApplyButtonProps {
     salaryMin:number,
     salaryMax:number
   }
+
+  export interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  subject: string;
+  message: string;
+}
