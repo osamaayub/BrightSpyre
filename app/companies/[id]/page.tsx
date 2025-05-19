@@ -1,203 +1,183 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
+'use client';
 
-export default function CompanyPage({ params }: { params: { id: string } }) {
-  const companyId = params.id
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import axios from 'axios';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 
-  // Mock company data
-  const company = {
-    id: companyId,
-    name: companyId === "techcorp" ? "TechCorp" : "Company Name",
-    logo: "/placeholder.svg?height=100&width=100",
-    industry: "Software Development",
-    location: "San Francisco, CA",
-    size: "500-1000 employees",
-    founded: "2010",
-    website: "https://example.com",
-    description:
-      "TechCorp is a leading technology company specializing in innovative solutions for businesses of all sizes. We are dedicated to creating cutting-edge software that transforms how companies operate.",
-    benefits: [
-      "Competitive salary",
-      "Remote work options",
-      "Health insurance",
-      "401(k) matching",
-      "Unlimited PTO",
-      "Professional development budget",
-    ],
-    openPositions: [
-      { id: "1", title: "Senior Frontend Developer", type: "Full-time", location: "Remote" },
-      { id: "2", title: "Backend Engineer", type: "Full-time", location: "San Francisco, CA" },
-      { id: "3", title: "UX Designer", type: "Full-time", location: "Remote" },
-      { id: "4", title: "DevOps Engineer", type: "Full-time", location: "San Francisco, CA" },
-    ],
-  }
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { ApplyButton } from '@/components/apply-button/apply-button';
+import { SaveJobButton } from '@/components/saveButon/save-job-button';
+import { cleanDescription } from '@/helpers/page';
+import { Company } from '@/types/filter';
+
+export default function JobPage() {
+  const { id } = useParams();
+  const [company, setCompany] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (id) {
+      fetchJob();
+    }
+  }, [id]);
+
+  const fetchJob = async () => {
+    try {
+      const res = await axios.get(`/api/companies/${id}`);
+      setCompany(res.data);
+    } catch (error: any) {
+      setError(error.response?.data?.message || 'An unexpected error occurred.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading)
+    return (
+      <div className="text-center py-12 animate-pulse text-lg font-medium">Loading...</div>
+    );
+  if (error)
+    return (
+      <div className="text-center py-12 text-red-600 font-semibold">{error}</div>
+    );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* Back button */}
+      <div className="mb-8">
         <Link href="/companies">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" className="hover:text-blue-600 transition">
             ← Back to Companies
           </Button>
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader className="flex flex-row items-center gap-4">
-              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-xl font-bold">
-                {company.name.charAt(0)}
-              </div>
-              <div>
-                <CardTitle className="text-3xl">{company.name}</CardTitle>
-                <CardDescription className="text-lg">
-                  {company.industry} • {company.location}
-                </CardDescription>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        {/* Job Details */}
+        <div className="lg:col-span-2 space-y-8">
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="pb-4 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="min-w-0">
+                  {/* min-w-0 to allow text truncation and prevent overflow */}
+                  <Link href={`/companies/${company.encrypted_id}`}>
+                  <CardTitle className="text-xl sm:text-2xl font-extrabold text-gray-900 truncate">
+                    {company?.title}
+                  </CardTitle>
+                  </Link>
+                  <CardDescription className="text-base sm:text-lg mt-1 max-w-full sm:max-w-[650px] text-gray-600 truncate">
+                    <Link
+                      href={`/companies/${company.url}`}
+                      className="hover:underline text-blue-600 font-medium"
+                    >
+                      {company?.organization}
+                    </Link>{' '}
+                    • {company?.city}, {company?.country}
+                  </CardDescription>
+                </div>
+                <div className="flex flex-wrap gap-2 sm:gap-3 justify-start sm:justify-end">
+                  <Badge className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md font-semibold text-sm sm:text-base whitespace-nowrap">
+                    {company?.category_name}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className="text-gray-700 px-3 py-1 rounded-md font-medium text-sm sm:text-base whitespace-nowrap"
+                  >
+                    Positions: {company?.positions}
+                  </Badge>
+                </div>
+                {company?.Salary && (
+                  <div className="text-gray-900 font-semibold text-base sm:text-lg mt-3 sm:mt-0 whitespace-nowrap">
+                    {company.Salary.toString()}
+                  </div>
+                )}
               </div>
             </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="about">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="about">About</TabsTrigger>
-                  <TabsTrigger value="jobs">Open Positions</TabsTrigger>
-                  <TabsTrigger value="benefits">Benefits</TabsTrigger>
-                </TabsList>
-                <TabsContent value="about" className="mt-6 space-y-4">
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">Company Overview</h3>
-                    <p className="text-muted-foreground">{company.description}</p>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div>
-                      <h4 className="font-medium">Founded</h4>
-                      <p className="text-muted-foreground">{company.founded}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Company Size</h4>
-                      <p className="text-muted-foreground">{company.size}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Website</h4>
-                      <Link
-                        href={company.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        {company.website.replace("https://", "")}
-                      </Link>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Industry</h4>
-                      <p className="text-muted-foreground">{company.industry}</p>
-                    </div>
-                  </div>
-                </TabsContent>
+            <CardContent className="space-y-8">
+              <section>
+                <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800 border-b border-gray-300 pb-2">
+                  Job Description
+                </h3>
+                <div
+                  className="prose max-w-none text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: company?.description }}
+                />
+              </section>
 
-                <TabsContent value="jobs" className="mt-6">
-                  <h3 className="text-xl font-semibold mb-4">Open Positions ({company.openPositions.length})</h3>
-                  <div className="space-y-4">
-                    {company.openPositions.map((job) => (
-                      <Card key={job.id}>
-                        <CardContent className="p-4">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <Link href={`/jobs/${job.id}`} className="text-lg font-medium hover:underline">
-                                {job.title}
-                              </Link>
-                              <div className="text-sm text-muted-foreground mt-1">{job.location}</div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <Badge>{job.type}</Badge>
-                              <Link href={`/jobs/${job.id}`}>
-                                <Button size="sm">View</Button>
-                              </Link>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
+              <Separator />
 
-                <TabsContent value="benefits" className="mt-6">
-                  <h3 className="text-xl font-semibold mb-4">Employee Benefits</h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {company.benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-primary"></div>
-                        <span>{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </TabsContent>
-              </Tabs>
+              <section>
+                <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-gray-800 border-b border-gray-300 pb-2">
+                  Job End Date
+                </h3>
+                <p className="text-gray-600 text-base sm:text-lg">{company?.end_date}</p>
+              </section>
             </CardContent>
+
+            <CardFooter className="flex flex-wrap gap-4 justify-center sm:justify-start pt-6 border-t border-gray-200">
+              <ApplyButton
+                jobId={company?.id}
+                jobTitle={company?.title}
+                company={company?.organization}
+              />
+              <SaveJobButton className='w-full' jobId={company?.id} jobTitle={company?.title} />
+            </CardFooter>
           </Card>
         </div>
 
-        <div className="lg:col-span-1">
-          <Card>
+        {/* Company Info */}
+        <div>
+          <Card className="shadow-md">
             <CardHeader>
-              <CardTitle>Company Details</CardTitle>
+              <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 whitespace-nowrap">
+                Company Information
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-sm space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Headquarters:</span>
-                  <span>{company.location}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Founded:</span>
-                  <span>{company.founded}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Company Size:</span>
-                  <span>{company.size}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Open Positions:</span>
-                  <Badge>{company.openPositions.length}</Badge>
-                </div>
+            <CardContent className="flex flex-col items-center text-center space-y-4 px-4">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-4xl font-bold text-gray-400">
+                {company?.organization?.charAt(0)}
+                {company.organization_logo && (
+                  <Image
+                    src={company.organization_logo}
+                    alt={`${company.organization} logo`}
+                    fill
+                    className="object-cover rounded-full"
+                    sizes="96px"
+                  />
+                )}
               </div>
-
-              <div className="pt-2">
-                <Button className="w-full">Follow Company</Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="mt-4">
-            <CardHeader>
-              <CardTitle>Similar Companies</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                <li>
-                  <Link href="/companies/devinc" className="text-sm font-medium hover:underline">
-                    DevInc
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/companies/websolutions" className="text-sm font-medium hover:underline">
-                    WebSolutions
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/companies/designco" className="text-sm font-medium hover:underline">
-                    DesignCo
-                  </Link>
-                </li>
-              </ul>
+              <h3 className="text-lg font-semibold whitespace-nowrap text-gray-800 truncate max-w-full">
+                {company?.organization}
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed px-2 md:px-6 max-w-full truncate">
+                {cleanDescription(company?.description)}
+              </p>
+              <Link href={`${company.url}`}>
+                <Button
+                  variant="outline"
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700 transition"
+                >
+                  View Company
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
-  )
+  );
 }
