@@ -91,7 +91,7 @@ const JobCard = ({ job }: { job: Job }) => {
         {/* Footer: Cities, Salary, and Buttons in One Row */}
         <div className="mt-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-x-4">
           {/* Left Side: Cities & Salary */}
-          <div className="text-sm text-gray-600">
+          <div className="text-sm  text-gray-600">
             <p>{formattedCity}</p>
             <p className="font-medium text-gray-800">{salaryText}</p>
           </div>
