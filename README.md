@@ -1,30 +1,60 @@
-# Brightspyre app structure
+# 🌟 Brightspyre
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+A modern, responsive web application built with cutting-edge tools including **Next.js**, **TypeScript**, **Tailwind CSS**, **ShadCN UI**, **React Hook Form**, and **Zod**. This project showcases scalable architecture, type-safe development, and beautiful UI components.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/osamaayubs-projects/v0-brightspyre-app-structure)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/D8REGGXHw7w)
+---
 
-## Overview
+## 📚 Table of Contents
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+- [Introduction](#introduction)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Configuration](#configuration)
+- [Troubleshooting](#troubleshooting)
+- [Contributors](#contributors)
+- [License](#license)
 
-## Deployment
+---
 
-Your project is live at:
+## 📖 Introduction
 
-**[https://vercel.com/osamaayubs-projects/v0-brightspyre-app-structure](https://vercel.com/osamaayubs-projects/v0-brightspyre-app-structure)**
+Brightspyre is designed as a modern web application leveraging a powerful stack of frontend tools and best practices. It emphasizes developer productivity, component reusability, and a clean UI/UX using a utility-first design approach.
 
-## Build your app
+---
 
-Continue building your app on:
+## 🛠️ Tech Stack
 
-**[https://v0.dev/chat/projects/D8REGGXHw7w](https://v0.dev/chat/projects/D8REGGXHw7w)**
+- **Next.js** – React framework with hybrid static & server rendering.
+- **TypeScript** – Static typing for safer, more predictable code.
+- **Tailwind CSS** – Utility-first CSS framework for rapid UI development.
+- **ShadCN UI** – Accessible and customizable UI components built on Radix and Tailwind.
+- **React Hook Form** – Flexible and performant form management.
+- **Zod** – Type-safe schema validation for forms and APIs.
 
-## How It Works
+---
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## ✨ Features
+
+- ⚙️ Fully type-safe codebase using TypeScript and Zod.
+- 🎨 Beautiful, consistent UI with Tailwind CSS and ShadCN.
+- 📄 Form validation powered by React Hook Form and Zod.
+- ⚡ Server-side rendering and routing via Next.js.
+- 📱 Responsive and mobile-first design.
+
+---
+
+## 🚀 Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/osamaayub/Brightspyre.git
+cd Brightspyre
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev

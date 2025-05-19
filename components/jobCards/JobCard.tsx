@@ -4,7 +4,6 @@ import { SaveJobButton } from "@/components/saveButon/save-job-button";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cleanDescription } from "@/helpers/page";
-import { Badge } from "@/components/ui/badge";
 import { Job } from "@/types/filter";
 import { differenceInDays } from "date-fns";
 
@@ -20,8 +19,28 @@ const getPostedDaysAgo = (endDate: string): string => {
   return `Posted ${daysAgo} days ago`;
 };
 
+// Function to estimate equity based on salary
+const estimateEquity = (salary: number): string => {
+  if (salary > 90000) return "0.1% – 0.3%";
+  if (salary > 75000) return "0.3% – 0.5%";
+  if (salary > 50000) return "0.5% – 1%";
+  return "1% – 2%"; // Lower salary typically offers more equity
+};
+
+// Limit displayed cities to 3 maximum and remove extra separators
+const maxCitiesToShow = 3;
+const formatCities = (cityString: string): string => {
+  const cityList = cityString.split(",").map(city => city.trim());
+  return cityList.length > maxCitiesToShow
+    ? `${cityList.slice(0, maxCitiesToShow).join(" • ")} +${cityList.length - maxCitiesToShow} more`
+    : cityList.join(" • ");
+};
+
 const JobCard = ({ job }: { job: Job }) => {
   const postedDaysAgo = job.end_date ? getPostedDaysAgo(job.end_date) : "Unknown";
+  const equity = job.salary ? estimateEquity(job.salary) : "Equity not provided";
+  const formattedCity = job.city ? formatCities(job.city) : "Location not provided";
+  const salaryText = job.salary ? `${job.salary.toLocaleString()} PKR • ${equity}` : "Salary not disclosed";
 
   return (
     <Card className="group flex flex-col hover:rotate-[0.5deg] justify-between w-full h-full shadow-md border border-gray-200 rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-blue-400 hover:bg-blue-50">
@@ -51,10 +70,10 @@ const JobCard = ({ job }: { job: Job }) => {
               {job.title}
             </Link>
           </h3>
-          <p className="text-xs text-gray-500 text-right">{postedDaysAgo}</p>
+          <p className="text-xs text-gray-500 text-right whitespace-nowrap">{postedDaysAgo}</p>
         </div>
 
-        {/* Job Info */}
+        {/* Job Description */}
         <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
           {cleanDescription(job.description)
             .split(/[\n.]/) // Split by newline or period
@@ -65,33 +84,23 @@ const JobCard = ({ job }: { job: Job }) => {
             ))}
         </ul>
 
-        {/* Location & Category */}
-        {job.city && (
-          <Badge className="bg-blue-100 text-blue-800 whitespace-nowrap">
-            {job.city}
-          </Badge>
-        )}
-        {job.category_name && <Badge className="bg-green-100 break-words mr-2 text-green-800">{job.category_name}</Badge>}
-        {job.organization && <Badge className="bg-green-100 break-words mr-2 text-green-800">{job.organization}</Badge>}
+        {/* Footer: Cities, Salary, and Buttons in One Row */}
+        <div className="mt-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-x-4">
+          {/* Left Side: Cities & Salary */}
+          <div className="text-sm text-gray-600">
+            <p>{formattedCity}</p>
+            <p className="font-medium text-gray-800">{salaryText}</p>
+          </div>
 
-        {/* Salary */}
-        <div className="flex justify-between items-center text-sm gap-2 min-h-[24px]">
-          {job.salary ? (
-            <Badge className="bg-blue-100 whitespace-nowrap text-blue-800">${job.salary.toString()}</Badge>
-          ) : (
-            <span className="text-gray-400 italic text-xs">Salary not disclosed</span>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="mt-auto flex flex-col sm:flex-row sm:items-center sm:gap-3 sm:justify-between">
-          <div className="flex flex-col sm:w-full justify-end sm:flex-row sm:items-center sm:gap-3">
+          {/* Right Side: Save and View Job Buttons */}
+          <div className="flex sm:flex-row sm:items-center sm:gap-3">
             <SaveJobButton jobId={job.id} jobTitle={job.title} className="hover:bg:blue-500" />
             <Link href={`/jobs/${job.encrypted_id}`}>
               <Button size="sm" className="text-sm">View Job</Button>
             </Link>
           </div>
         </div>
+
       </CardContent>
     </Card>
   );
