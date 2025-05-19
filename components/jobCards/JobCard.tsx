@@ -39,7 +39,7 @@ const formatCities = (cityString: string): string => {
 const JobCard = ({ job }: { job: Job }) => {
   const postedDaysAgo = job.end_date ? getPostedDaysAgo(job.end_date) : "Unknown";
   const equity = job.salary ? estimateEquity(job.salary) : "Equity not provided";
-  const formattedCity = job.city ? formatCities(job.city) : "Location not provided";
+  const formattedCity = job.city ? formatCities(job.city):"";
   const salaryText = job.salary ? `${job.salary.toLocaleString()} PKR • ${equity}` : "Salary not disclosed";
 
   return (
@@ -62,7 +62,10 @@ const JobCard = ({ job }: { job: Job }) => {
             <p className="text-xs text-gray-400">{job.country}</p>
           </div>
         </div>
-
+        {/* Category */}
+        <div className="uppercase  text-sm text-gray-400 font-bold">
+          {job.category_name}
+        </div>
         {/* Job Title & Posted Days Ago */}
         <div className="flex justify-between items-center">
           <h3 className="text-sm font-medium text-blue-700 underline truncate">
@@ -70,7 +73,7 @@ const JobCard = ({ job }: { job: Job }) => {
               {job.title}
             </Link>
           </h3>
-          <p className="text-xs text-gray-500 text-right whitespace-nowrap">{postedDaysAgo}</p>
+          <p className="text-xs text-gray-400 text-right whitespace-nowrap">{postedDaysAgo}</p>
         </div>
 
         {/* Job Description */}

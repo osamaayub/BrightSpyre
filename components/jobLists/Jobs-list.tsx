@@ -141,147 +141,117 @@ export function JobsList({ filters }: { filters: Filters }) {
   const cityCounts = getUniqueAndCount("city");
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6">
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Sidebar */}
-        <aside className="w-full md:w-1/3 lg:w-1/4  bg-gray-50 p-4 rounded shadow-md h-fit">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Filters</h2>
-          </div>
-
-          {/* Category Filter */}
-          <div className="mb-4">
-            <h3
-              className="cursor-pointer font-medium mb-2"
-              onClick={() => toggleFilterSection("category")}
-            >
-              Categories {filterToggles.category ? "▼" : "▶"}
-            </h3>
-            {filterToggles.category && (
-              <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
-                {Object.entries(categoryCounts).map(([cat, count]) => (
-                  <label key={cat} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={activeFilters.category_name.includes(cat)}
-                      onChange={(e) => {
-                        let newFilters = [...activeFilters.category_name];
-                        if (e.target.checked) {
-                          newFilters.push(cat);
-                        } else {
-                          newFilters = newFilters.filter((f) => f !== cat);
-                        }
-                        handleFilterChange("category_name", newFilters);
-                      }}
-                    />
-                    <span>{cat} ({count})</span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Organization Filter */}
-          <div className="mb-4">
-            <h3
-              className="cursor-pointer font-medium mb-2"
-              onClick={() => toggleFilterSection("organization")}
-            >
-              Organizations {filterToggles.organization ? "▼" : "▶"}
-            </h3>
-            {filterToggles.organization && (
-              <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
-                {Object.entries(organizationCounts).map(([org, count]) => (
-                  <label key={org} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={activeFilters.organization.includes(org)}
-                      onChange={(e) => {
-                        let newFilters = [...activeFilters.organization];
-                        if (e.target.checked) {
-                          newFilters.push(org);
-                        } else {
-                          newFilters = newFilters.filter((f) => f !== org);
-                        }
-                        handleFilterChange("organization", newFilters);
-                      }}
-                    />
-                    <span>{org} ({count})</span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* City Filter */}
-          <div>
-            <h3
-              className="cursor-pointer font-medium mb-2"
-              onClick={() => toggleFilterSection("city")}
-            >
-              Cities {filterToggles.city ? "▼" : "▶"}
-            </h3>
-            {filterToggles.city && (
-              <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
-                {Object.entries(cityCounts).map(([city, count]) => (
-                  <label key={city} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={activeFilters.city.includes(city)}
-                      onChange={(e) => {
-                        let newFilters = [...activeFilters.city];
-                        if (e.target.checked) {
-                          newFilters.push(city);
-                        } else {
-                          newFilters = newFilters.filter((f) => f !== city);
-                        }
-                        handleFilterChange("city", newFilters);
-                      }}
-                    />
-                    <span>{city} ({count})</span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-          <button
-              onClick={resetFilters}
-              className=" w-full text-sm bg-gray-300 px-3 py-2 rounded text-black hover:bg-purple-600"
-            >
-              Clear All
-          </button>
-        </aside>
-       
-
-        {/* Main Content */}
-        <main className="flex-1">
-
-          {loading ? (
-            <p className="text-center text-gray-600">Loading jobs...</p>
-          ) : error ? (
-            <p className="text-center text-red-600">{error}</p>
-          ) : (
-            <>
-              <div className="mb-5 text-black">{currentJobs.length} of {filteredJobs.length} jobs </div>
-              <div className="grid grid-cols-1 gap-4 max-w-xl mx-auto px-4">
-
-                {currentJobs.length === 0 ? (
-                  <p className="text-center col-span-full">No jobs found.</p>
-                ) : (
-                  currentJobs.map((job) => <JobCard key={job.id} job={job} />)
-                )}
-              </div>
-              <div className="mt-6">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={jobsPerPage}
-                  onPageChange={setCurrentPage}
-                />
-              </div>
-            </>
-          )}
-        </main>
+  <div className="max-w-7xl mx-auto p-4 md:p-6">
+  <div className="flex flex-col md:flex-row gap-6">
+    
+    {/* Sidebar (Filters) */}
+    <aside className="w-full md:w-1/4 lg:w-1/5 bg-gray-50 p-4 rounded shadow-md h-fit">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">Filters</h2>
       </div>
-    </div>
+
+      {/* Category Filter */}
+      <div className="mb-4">
+        <h3 className="cursor-pointer font-medium mb-2" onClick={() => toggleFilterSection("category")}>
+          Categories {filterToggles.category ? "▼" : "▶"}
+        </h3>
+        {filterToggles.category && (
+          <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
+            {Object.entries(categoryCounts).map(([cat, count]) => (
+              <label key={cat} className="flex items-center space-x-2">
+                <input type="checkbox" checked={activeFilters.category_name.includes(cat)} 
+                  onChange={(e) => {
+                    let newFilters = [...activeFilters.category_name];
+                    if (e.target.checked) newFilters.push(cat);
+                    else newFilters = newFilters.filter((f) => f !== cat);
+                    handleFilterChange("category_name", newFilters);
+                  }}
+                />
+                <span>{cat} ({count})</span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+      
+      {/* Organization and City Filters (Preserved Styling) */}
+      <div className="mb-4">
+        <h3 className="cursor-pointer font-medium mb-2" onClick={() => toggleFilterSection("organization")}>
+          Organizations {filterToggles.organization ? "▼" : "▶"}
+        </h3>
+        {filterToggles.organization && (
+          <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
+            {Object.entries(organizationCounts).map(([org, count]) => (
+              <label key={org} className="flex items-center space-x-2">
+                <input type="checkbox" checked={activeFilters.organization.includes(org)} 
+                  onChange={(e) => {
+                    let newFilters = [...activeFilters.organization];
+                    if (e.target.checked) newFilters.push(org);
+                    else newFilters = newFilters.filter((f) => f !== org);
+                    handleFilterChange("organization", newFilters);
+                  }}
+                />
+                <span>{org} ({count})</span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* City Filter */}
+      <div>
+        <h3 className="cursor-pointer font-medium mb-2" onClick={() => toggleFilterSection("city")}>
+          Cities {filterToggles.city ? "▼" : "▶"}
+        </h3>
+        {filterToggles.city && (
+          <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
+            {Object.entries(cityCounts).map(([city, count]) => (
+              <label key={city} className="flex items-center space-x-2">
+                <input type="checkbox" checked={activeFilters.city.includes(city)} 
+                  onChange={(e) => {
+                    let newFilters = [...activeFilters.city];
+                    if (e.target.checked) newFilters.push(city);
+                    else newFilters = newFilters.filter((f) => f !== city);
+                    handleFilterChange("city", newFilters);
+                  }}
+                />
+                <span>{city} ({count})</span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button onClick={resetFilters} className="w-full text-sm bg-gray-300 px-3 py-2 rounded text-black hover:bg-purple-600">
+        Clear All
+      </button>
+    </aside>
+
+    {/* Job Listings */}
+    <main className="flex-1">
+      {loading ? (
+        <p className="text-center text-gray-600">Loading jobs...</p>
+      ) : error ? (
+        <p className="text-center text-red-600">{error}</p>
+      ) : (
+        <>
+          <div className="mb-5 text-black">{currentJobs.length} of {filteredJobs.length} jobs </div>
+          <div className="grid grid-cols-1 gap-6 max-w-xl">
+            {currentJobs.length === 0 ? (
+              <p className="text-center col-span-full">No jobs found.</p>
+            ) : (
+              currentJobs.map((job) => <JobCard key={job.id} job={job} />)
+            )}
+          </div>
+          <div className="mt-6">
+            <Pagination currentPage={currentPage} totalPages={jobsPerPage} onPageChange={setCurrentPage} />
+          </div>
+        </>
+      )}
+    </main>
+  </div>
+</div>
+
+
   );
 }
