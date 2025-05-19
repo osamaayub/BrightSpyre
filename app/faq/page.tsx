@@ -87,7 +87,7 @@ export default function FAQPage() {
         </Card>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-8 animate-accordion-down">
         {faqs.map((category, index) => (
           <div key={index}>
             <h2 className="text-2xl font-bold mb-4">{category.category}</h2>
