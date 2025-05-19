@@ -1,4 +1,5 @@
 
+import { differenceInDays } from "date-fns";
 import he from "he";
 import striptags from "striptags";
 
@@ -21,4 +22,10 @@ export const estimateEquity = (salary: number): string => {
   if (salary > 75000) return "0.3% – 0.5%";
   if (salary > 50000) return "0.5% – 1%";
   return "1% – 2%"; // Lower salary typically offers more equity
+};
+
+// Function to calculate "Posted X days ago"
+export const getPostedDaysAgo = (endDate: string): string => {
+  const daysAgo = differenceInDays(new Date(), parseDate(endDate));
+  return `Posted ${daysAgo} days ago`;
 };

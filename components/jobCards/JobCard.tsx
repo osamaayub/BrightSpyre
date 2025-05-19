@@ -5,15 +5,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cleanDescription } from "@/helpers/page";
 import { Job } from "@/types/filter";
-import { differenceInDays } from "date-fns";
-import { parseDate,estimateEquity } from "@/helpers/page";
+
+import {estimateEquity,getPostedDaysAgo } from "@/helpers/page";
 
 
-// Function to calculate "Posted X days ago"
-const getPostedDaysAgo = (endDate: string): string => {
-  const daysAgo = differenceInDays(new Date(), parseDate(endDate));
-  return `Posted ${daysAgo} days ago`;
-};
+
 
 
 // Limit displayed cities to 3 maximum and remove extra separators
