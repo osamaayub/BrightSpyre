@@ -6,12 +6,8 @@ import { Button } from "@/components/ui/button";
 import { cleanDescription } from "@/helpers/page";
 import { Job } from "@/types/filter";
 import { differenceInDays } from "date-fns";
+import { parseDate,estimateEquity } from "@/helpers/page";
 
-// Function to parse "DD/MM/YYYY" format into a Date object
-const parseDate = (dateString: string): Date => {
-  const [day, month, year] = dateString.split("/").map(Number);
-  return new Date(year, month - 1, day); // Months are zero-based in JS
-};
 
 // Function to calculate "Posted X days ago"
 const getPostedDaysAgo = (endDate: string): string => {
@@ -19,18 +15,11 @@ const getPostedDaysAgo = (endDate: string): string => {
   return `Posted ${daysAgo} days ago`;
 };
 
-// Function to estimate equity based on salary
-const estimateEquity = (salary: number): string => {
-  if (salary > 90000) return "0.1% – 0.3%";
-  if (salary > 75000) return "0.3% – 0.5%";
-  if (salary > 50000) return "0.5% – 1%";
-  return "1% – 2%"; // Lower salary typically offers more equity
-};
 
 // Limit displayed cities to 3 maximum and remove extra separators
 const maxCitiesToShow = 3;
 const formatCities = (cityString: string): string => {
-  const cityList = cityString.split(",").map(city => city.trim());
+  const cityList = cityString.split(/[,.]/).map(city => city.trim()).filter((city=>city!=""));
   return cityList.length > maxCitiesToShow
     ? `${cityList.slice(0, maxCitiesToShow).join(" • ")} +${cityList.length - maxCitiesToShow} more`
     : cityList.join(" • ");
@@ -40,7 +29,7 @@ const JobCard = ({ job }: { job: Job }) => {
   const postedDaysAgo = job.end_date ? getPostedDaysAgo(job.end_date) : "Unknown";
   const equity = job.salary ? estimateEquity(job.salary) : "Equity not provided";
   const formattedCity = job.city ? formatCities(job.city):"";
-  const salaryText = job.salary ? `${job.salary.toLocaleString()} PKR • ${equity}` : "Salary not disclosed";
+  const salaryText = job.salary ? `${job.salary.toLocaleString()}` : "Salary not disclosed";
 
   return (
     <Card className="group flex flex-col hover:rotate-[0.5deg] justify-between w-full h-full shadow-md border border-gray-200 rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-blue-400 hover:bg-blue-50">
@@ -80,7 +69,7 @@ const JobCard = ({ job }: { job: Job }) => {
         {/* Job Description */}
         <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
           {cleanDescription(job.description)
-            .split(/[\n.]/) // Split by newline or period
+            .split(/[\n]/) // Split by newline or period
             .filter((line) => line.trim() !== "") // Remove empty lines
             .slice(0, 2) // Take first 2 items
             .map((point, index) => (
