@@ -125,7 +125,7 @@ export default function CompaniesPage() {
                 <div className="flex flex-wrap justify-between gap-x-2 gap-y-1 text-gray-600">
                   <div className="flex gap-1">
                     <span className="font-medium">Location:</span>
-                    <span>{company.city}, {company.country}</span>
+                    <span className=" sm:text-xs text-base whitespace-nowrap">{company.city}, {company.country}</span>
                   </div>
                   <div className="flex gap-1 items-center">
                     <span className="font-medium">Open Positions:</span>
