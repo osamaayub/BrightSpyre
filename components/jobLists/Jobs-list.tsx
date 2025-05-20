@@ -5,6 +5,7 @@ import axios from "axios";
 import { Filters, Job, FilterToggles } from "@/types/filter";
 import JobCard from "@/components/jobCards/JobCard";
 import { Pagination } from "@/components/pagination/pagination-job";
+import JobCardSkeleton from "../jobskeleton/jobSkeleton";
 
 
 
@@ -228,27 +229,36 @@ export function JobsList({ filters }: { filters: Filters }) {
     </aside>
 
     {/* Job Listings */}
-    <main className="flex-1">
-      {loading ? (
-        <p className="text-center text-gray-600">Loading jobs...</p>
-      ) : error ? (
-        <p className="text-center text-red-600">{error}</p>
-      ) : (
-        <>
-          <div className="mb-5 text-black">{currentJobs.length} of {filteredJobs.length} jobs </div>
-          <div className="grid grid-cols-1 gap-6 max-w-xl">
-            {currentJobs.length === 0 ? (
-              <p className="text-center col-span-full">No jobs found.</p>
-            ) : (
-              currentJobs.map((job) => <JobCard key={job.id} job={job} />)
-            )}
-          </div>
-          <div className="mt-6">
-            <Pagination currentPage={currentPage} totalPages={jobsPerPage} onPageChange={setCurrentPage} />
-          </div>
-        </>
-      )}
-    </main>
+  <main className="flex-1">
+  {loading ? (
+    <div className="text-center text-gray-600">
+      <JobCardSkeleton />
+    </div>
+  ) : error ? (
+    <p className="text-center text-red-600">{error}</p>
+  ) : (
+    <>
+      <div className="mb-5 text-black">
+        {currentJobs.length} of {filteredJobs.length} jobs
+      </div>
+      <div className="grid grid-cols-1 gap-6 max-w-xl">
+        {currentJobs.length === 0 ? (
+          <p className="text-center col-span-full">No jobs found.</p>
+        ) : (
+          currentJobs.map((job) => <JobCard key={job.id} job={job} />)
+        )}
+      </div>
+      <div className="mt-6">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={jobsPerPage}
+          onPageChange={setCurrentPage}
+        />
+      </div>
+    </>
+  )}
+</main>
+
   </div>
 </div>
 
