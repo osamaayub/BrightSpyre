@@ -21,34 +21,41 @@ export function HeaderButtons() {
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row items-center gap-2 sm:gap-3 md:gap-4">
       {isLoggedIn ? (
         <>
           <Link href="/profile">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="w-full sm:w-auto">
               Profile
             </Button>
           </Link>
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="w-full sm:w-auto"
+          >
             Logout
           </Button>
         </>
       ) : (
         <>
-          <Link href="/login" >
-            <Button variant="ghost" size="sm">
+          <Link href="/login">
+            <Button variant="ghost" size="sm" className="w-full sm:w-auto">
               Login
             </Button>
           </Link>
           <Link href="/signup">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="w-full sm:w-auto">
               Sign Up
             </Button>
           </Link>
         </>
       )}
       <Link href="/employers/post-job">
-        <Button size="sm">Post a Job</Button>
+        <Button size="sm" className="w-full sm:w-auto">
+          Post a Job
+        </Button>
       </Link>
     </div>
   )
