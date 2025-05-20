@@ -12,7 +12,7 @@ import {formatCities,getPostedDaysAgo } from "@/helpers/page";
 const JobCard = ({ job }: { job: Job }) => {
   const postedDaysAgo = job.end_date ? getPostedDaysAgo(job.end_date) : "Unknown";
   const formattedCity = job.city ? formatCities(job.city):"";
-  const salaryText = job.salary ? `${job.salary.toLocaleString()}` : "Salary not disclosed";
+  const salaryText = job.salary ? `PKR ${job.salary.toLocaleString()}` : "Salary not disclosed";
 
   return (
     <Card className="group flex flex-col hover:rotate-[0.5deg] justify-between w-full h-full shadow-md border border-gray-200 rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-blue-400 hover:bg-blue-50">
@@ -64,8 +64,8 @@ const JobCard = ({ job }: { job: Job }) => {
         <div className="mt-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-x-4">
           {/* Left Side: Cities & Salary */}
           <div className="text-sm  text-gray-600">
-            <p>{formattedCity}</p>
-            <p className="font-medium text-gray-800">{salaryText}</p>
+            <p>{formattedCity}</p> 
+            <p className="font-medium text-gray-800"> {salaryText}</p>
           </div>
 
           {/* Right Side: Save and View Job Buttons */}

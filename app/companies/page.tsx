@@ -45,27 +45,33 @@ export default function CompaniesPage() {
     return <div className="text-red-600 text-center">{error}</div>;
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-4xl font-bold mb-10 text-center md:text-left">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-8 sm:mb-10 text-center md:text-left">
         Companies
       </h1>
 
-      <div className="mb-10 max-w-xl mx-auto md:mx-0">
-        <div className="flex gap-4">
+      {/* Search Bar */}
+      <div className="mb-8 max-w-xl mx-auto md:mx-0">
+        <div className="flex flex-col sm:flex-row gap-4">
           <Input
             placeholder="Search companies..."
             className="flex-1 rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
-          <Button className="px-6 py-2 rounded-lg" size="lg">
+          <Button
+            className="w-full sm:w-auto px-6 py-2 rounded-lg"
+            size="lg"
+          >
             Search
           </Button>
         </div>
       </div>
 
+      {/* Companies Grid */}
       <div
         className="
           grid
           grid-cols-1
+          sm:grid-cols-2
           md:grid-cols-3
           lg:grid-cols-4
           gap-6
@@ -75,11 +81,11 @@ export default function CompaniesPage() {
           <Card
             key={company.id}
             className="
-              group flex flex-col flex-grow-0 justify-between
+              group flex flex-col justify-between
               border border-gray-200 rounded-2xl shadow-md
               bg-white
               hover:shadow-lg hover:border-blue-400 hover:bg-blue-50
-               transition-border transition-colors duration-300
+              transition-colors  duration-300
               p-6
               min-h-[340px]
             "
@@ -101,8 +107,9 @@ export default function CompaniesPage() {
                     </div>
                   )}
                 </div>
-                {/* Keep text inside card */}
-                <div className="flex flex-col w-full overflow-hidden">
+
+                <div className="flex flex-col w-full overflow-hidden min-w-0">
+                  {/* min-w-0 allows truncation to work properly */}
                   <CardTitle className="text-lg font-semibold truncate max-w-full group-hover:text-blue-600 transition-colors">
                     {company.organization}
                   </CardTitle>
@@ -114,23 +121,24 @@ export default function CompaniesPage() {
             </CardHeader>
 
             <CardContent className="p-0 flex-grow">
-              <div className="space-y-4 text-sm text-gray-700">
-                <div className="flex flex-row justify-between col-gap-2">
-                  <span className="font-medium text-gray-500">Location:</span>
-                  <span className="text-right whitespace-nowrap">
-                    {company.city}
-                  </span>
-                  <span className="text-left">
-                    {company.country}
-                  </span>
+              <div className="space-y-3 text-sm text-gray-700">
+                <div className="flex flex-wrap justify-between gap-x-2 gap-y-1 text-gray-600">
+                  <div className="flex gap-1">
+                    <span className="font-medium">Location:</span>
+                    <span>{company.city}, {company.country}</span>
+                  </div>
+                  <div className="flex gap-1 items-center">
+                    <span className="font-medium">Open Positions:</span>
+                    <Link href={"/jobs"}>
+                      <span className="text-blue-600 hover:underline cursor-pointer">
+                        {company.positions}
+                      </span>
+                    </Link>
+                  </div>
                 </div>
-                <div className="flex justify-center gap-2">
-                  <span className="font-medium text-gray-500 hover:bg-gray-300">Open Positions:</span>
-                  <Link href={"/jobs"}>
-                  <span className="text-right hover:bg-gray-300">{company.positions}</span>
-                  </Link>
-                </div>
-                <p className="text-sm text-gray-600 line-clamp-3">{cleanDescription(company.description)}</p>
+                <p className="text-gray-600 line-clamp-3">
+                  {cleanDescription(company.description)}
+                </p>
               </div>
             </CardContent>
 
