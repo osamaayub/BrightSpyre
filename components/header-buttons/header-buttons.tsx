@@ -21,7 +21,7 @@ export function HeaderButtons() {
   }
 
   return (
-    <div className="flex items-center gap-4 sm:flex-col flex-row">
+    <div className="flex items-center gap-4">
       {isLoggedIn ? (
         <>
           <Link href="/profile">
