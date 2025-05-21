@@ -16,7 +16,6 @@ const nextConfig = {
     ],
     unoptimized: false,
   },
-  distDir: 'dist',  // <-- here, at the top level
 }
 
 export default nextConfig
