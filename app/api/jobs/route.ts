@@ -9,7 +9,8 @@ export async function GET(res:NextResponse) {
 , {
       headers: {
         Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
-      }
+      },
+     cache:no-store
     });
 
     return NextResponse.json(response.data);
