@@ -16,7 +16,7 @@ const nextConfig = {
     ],
     unoptimized: false,
   },
-  distDir: 'dist',  // <-- here, at the top level
+    allowedDevOrigins: ['http://13.213.30.63:3000'], // Add any origin accessing your dev server
 }
 
 export default nextConfig

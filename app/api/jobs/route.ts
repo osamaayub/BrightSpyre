@@ -1,7 +1,7 @@
 import axios from "axios";
 import { NextResponse } from "next/server";
 
-export async function GET(res:NextResponse) {
+export async function GET(req:NextResponse) {
   try {  
 
     // Make the API request
