@@ -1,55 +1,67 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormSchema } from "@/schemas/page";
 
 import type React from "react";
-import { FormInput } from "@/types/type"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/context/auth-context"
-import { useState, useEffect } from "react"
-import {jwtDecode} from "jwt-decode"
+import { FormInput } from "@/types/type";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/auth-context";
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
 
 interface JwtPayload {
   exp: number;
 }
 
 export default function LoginPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormInput>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormInput>({
     resolver: zodResolver(LoginFormSchema),
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [checkingToken, setCheckingToken] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
   const { login } = useAuth();
 
-  // Check token on mount, redirect if expired or missing
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token");
     if (token) {
       try {
         const decoded = jwtDecode<JwtPayload>(token);
         const isExpired = decoded.exp * 1000 < Date.now();
-        // checking if the the token is expired or not then redirect to the login page
         if (isExpired) {
-          localStorage.removeItem("token");
-          router.push("/login");
+          Cookies.remove("token");
+          setCheckingToken(false);
         } else {
-          // Token valid, redirect to home or dashboard
           router.push("/");
         }
       } catch {
-        localStorage.removeItem("token");
-        router.push("/login");
+        Cookies.remove("token");
+        setCheckingToken(false);
       }
+    } else {
+      setCheckingToken(false);
     }
   }, [router]);
 
@@ -65,17 +77,27 @@ export default function LoginPage() {
       email: data.email,
     });
 
-    // Save token to localStorage
-    localStorage.setItem("token", btoa(fakeToken)); // base64 encoding for demo
+    // Save token to cookie (you might want to set secure and httpOnly flags on real backend cookies)
+    Cookies.set("token", btoa(fakeToken));
 
     // Log the user in (your auth context)
     login();
 
-    toast({ title: "Login successful", description: "You have logged in successfully." })
+    toast({
+      title: "Login successful",
+      description: "You have logged in successfully.",
+    });
 
     router.push("/");
     setIsLoading(false);
   };
+
+  if (checkingToken)
+    return (
+      <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[80vh]">
+        <p className="text-center text-lg">Checking authentication...</p>
+      </div>
+    );
 
   return (
     <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[80vh]">
@@ -103,15 +125,14 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-primary hover:underline"
+                >
                   Forgot password?
                 </Link>
               </div>
-              <Input
-                id="password"
-                type="password"
-                {...register("password")}
-              />
+              <Input id="password" type="password" {...register("password")} />
               {errors.password && (
                 <p className="text-sm text-red-600">{errors.password.message}</p>
               )}
@@ -134,15 +155,21 @@ export default function LoginPage() {
               <div className="w-full border-t"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-card px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 w-full">
-            <Button variant="outline" type="button">Google</Button>
-            <Button variant="outline" type="button">GitHub</Button>
+            <Button variant="outline" type="button">
+              Google
+            </Button>
+            <Button variant="outline" type="button">
+              GitHub
+            </Button>
           </div>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
