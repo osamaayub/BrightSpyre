@@ -1,20 +1,28 @@
 "use client"
 
+import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 
-import { AuthContextType } from "@/types/auth"
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-
-
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext({
+  isLoggedIn: false,
+  login: () => {},
+  logout: () => {},
+})
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true"
-    setIsLoggedIn(loggedIn)
+    // On mount, call an API to check if token cookie is valid
+    async function checkAuth() {
+      const res = await fetch('/api/auth/login') // your endpoint to verify token cookie
+      if (res.ok) {
+        setIsLoggedIn(true)
+      } else {
+        setIsLoggedIn(false)
+        localStorage.removeItem('isLoggedIn')
+      }
+    }
+    checkAuth()
   }, [])
 
   const login = () => {
@@ -22,7 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoggedIn(true)
   }
 
-  const logout = () => {
+  const logout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' }) // endpoint to clear cookie
     localStorage.removeItem("isLoggedIn")
     setIsLoggedIn(false)
   }
@@ -31,9 +40,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
+  return useContext(AuthContext)
 }
