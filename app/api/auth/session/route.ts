@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!
+const ACCESS_TOKEN_SECRET = process.env.AUTH_SECRET!
 
 export async function GET() {
   const cookieStore = cookies()

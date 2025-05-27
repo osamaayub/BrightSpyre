@@ -14,7 +14,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/context/auth-context"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import {jwtDecode} from "jwt-decode"
+
+interface JwtPayload {
+  exp: number;
+}
 
 export default function LoginPage() {
   const { register, handleSubmit, formState: { errors } } = useForm<FormInput>({
@@ -26,23 +31,50 @@ export default function LoginPage() {
   const { toast } = useToast();
   const { login } = useAuth();
 
+  // Check token on mount, redirect if expired or missing
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode<JwtPayload>(token);
+        const isExpired = decoded.exp * 1000 < Date.now();
+        // checking if the the token is expired or not then redirect to the login page
+        if (isExpired) {
+          localStorage.removeItem("token");
+          router.push("/login");
+        } else {
+          // Token valid, redirect to home or dashboard
+          router.push("/");
+        }
+      } catch {
+        localStorage.removeItem("token");
+        router.push("/login");
+      }
+    }
+  }, [router]);
+
   const onSubmit = async (data: FormInput) => {
     setIsLoading(true);
 
-    // Simulate authentication
+    // Simulate API login, token from backend
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Log the user in
-    login();
-
-    // Show success message
-    toast({
-      title: "Login successful",
-      description: "You have been logged in successfully.",
+    // Simulated JWT token with expiry 1 hour from now
+    const fakeToken = JSON.stringify({
+      exp: Math.floor(Date.now() / 1000) + 60 * 60,
+      email: data.email,
     });
 
-    // Redirect to home page
+    // Save token to localStorage
+    localStorage.setItem("token", btoa(fakeToken)); // base64 encoding for demo
+
+    // Log the user in (your auth context)
+    login();
+
+    toast({ title: "Login successful", description: "You have logged in successfully." })
+
     router.push("/");
+    setIsLoading(false);
   };
 
   return (

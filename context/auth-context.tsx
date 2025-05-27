@@ -14,7 +14,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // On mount, call an API to check if token cookie is valid
     async function checkAuth() {
-      const res = await fetch('/api/auth/login') // your endpoint to verify token cookie
+      const res = await fetch('/api/auth/session') // your endpoint to verify token cookie
       if (res.ok) {
         setIsLoggedIn(true)
       } else {

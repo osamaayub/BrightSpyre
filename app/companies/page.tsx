@@ -29,10 +29,8 @@ export default function CompaniesPage() {
 
   async function fetchJobs() {
     try {
-      const response = await axios.get("/api/companies",{
-        withCredentials:true
-      });
-      setCompanies(response.data || []);
+      const response = await axios.get("/api/companies");
+      setCompanies(response.data.results || []);
     } catch (error: any) {
       setError(error?.response?.data?.message || "companies data not found");
     } finally {

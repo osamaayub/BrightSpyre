@@ -1,25 +1,57 @@
-import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+let cachedToken: string | null = null;
+let tokenExpiry = 0;
+
+async function getBearerToken() {
+  const now = Date.now();
+
+  if (cachedToken && now < tokenExpiry) {
+    return cachedToken;
+  }
+
+  // Request new token
+  const tokenResponse = await axios.post(
+    "https://resume.brightspyre.com/oauth/v2/token",
+    new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: process.env.CLIENT_ID!,
+      client_secret: process.env.CLIENT_SECRET!,
+    }),
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  );
+  const data = tokenResponse.data;
+  cachedToken = data.access_token;
+  // expires_in is seconds, subtract 60 sec buffer
+  tokenExpiry = now + (data.expires_in - 60) * 1000;
+
+  return cachedToken;
+}
+
+export async function GET() {
   try {
-    // Make the API request
+    const token = await getBearerToken();
+
     const response = await axios.get(
-      'https://resume.brightspyre.com/api/auth/jobs/list?page=1&limit=100',{
+      "https://resume.brightspyre.com/api/auth/jobs/list?page=1&limit=100",
+      {
         headers: {
-          Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
-        }
+          Authorization: `Bearer ${token}`,
+        },
       }
     );
-    // Return the filtered company data
-    return NextResponse.json(response.data.results);
-  } catch (error: any) {
-    // Log the error for debugging
 
-    // Return an error response
+    return NextResponse.json(response.data);
+  } catch (error: any) {
     return NextResponse.json({
-      message: 'Error Fetching Data | 500',
-      error: error?.response?.data || error?.message || 'Unknown error',
-    }, { status: 500 });
+      message:
+        `Error fetching data: ` +
+        (error.message || error.response?.data?.message || "Unknown error"),
+    });
   }
 }
