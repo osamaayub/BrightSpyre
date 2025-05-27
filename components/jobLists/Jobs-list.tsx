@@ -29,7 +29,12 @@ export function JobsList({ filters }: { filters: Filters }) {
       setLoading(true);
       setError(null);
       try {
-        const response = await axios.get("/api/jobs");
+        const response = await axios.get("/api/jobs",{
+          headers:{
+            Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+          },
+          withCredentials:true
+        });
         setJobs(response.data.results || []);
       } catch (err: any) {
         setError(err.response?.data?.message || "An unexpected error occurred.");

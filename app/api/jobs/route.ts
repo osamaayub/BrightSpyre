@@ -1,7 +1,8 @@
+
 import axios from "axios";
 import { NextResponse } from "next/server";
 
-export async function GET(req:NextResponse) {
+export async function GET(res:NextResponse) {
   try {  
 
     // Make the API request
@@ -9,7 +10,7 @@ export async function GET(req:NextResponse) {
 , {
       headers: {
         Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
-      }
+      },
     });
 
     return NextResponse.json(response.data);
