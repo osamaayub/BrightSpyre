@@ -5,8 +5,8 @@ import jwt from 'jsonwebtoken'
 const ACCESS_TOKEN_SECRET = process.env.AUTH_SECRET!
 
 export async function GET() {
-  const cookieStore = cookies()
-  const token = (await cookieStore).get('token')?.value
+  const cookieStore = cookies();
+  const token = cookieStore.get('token')?.value
 
   if (!token) {
     return NextResponse.json({ message: 'No token' }, { status: 401 })
