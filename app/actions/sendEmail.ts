@@ -1,4 +1,5 @@
 "use server";
+import { auth } from '@clerk/nextjs/server';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY); // Use an env variable for security
@@ -14,6 +15,12 @@ interface FormData {
 export async function sendEmail(formData: FormData) {
     try {
         const { firstName, lastName, email, subject, message } = formData;
+        const {userId}=await auth();
+        
+
+        if(!userId){
+         throw new Error("you must be signed In to send Message through form");
+        }
 
         const response = await resend.emails.send({
             from: 'osama.ayubwebdev@gmail.com', // Replace with a verified sender
