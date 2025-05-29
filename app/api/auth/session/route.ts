@@ -1,21 +1,18 @@
-import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import jwt from 'jsonwebtoken'
 
-const ACCESS_TOKEN_SECRET = process.env.AUTH_SECRET!
 
-export async function GET() {
-  const cookieStore = cookies();
-  const token = cookieStore.get('token')?.value
+import { NextRequest, NextResponse } from 'next/server'
+import { auth} from '@clerk/nextjs/server'
 
-  if (!token) {
-    return NextResponse.json({ message: 'No token' }, { status: 401 })
+export async function GET(req: NextRequest) {
+  const { userId, sessionId } = await auth();
+
+  if (!userId) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  try {
-    jwt.verify(token, ACCESS_TOKEN_SECRET)
-    return NextResponse.json({ message: 'Token valid' })
-  } catch (error) {
-    return NextResponse.json({ message: 'Invalid token' }, { status: 401 })
-  }
+  return NextResponse.json({
+    message: 'Authenticated',
+    userId,
+    sessionId
+  });
 }

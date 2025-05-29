@@ -5,9 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormSchema } from "@/schemas/page";
-
-import type React from "react";
 import { FormInput } from "@/types/type";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,14 +19,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/context/auth-context";
-import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode";
 
-interface JwtPayload {
-  exp: number;
-}
+import { useState } from "react";
+import {useSignIn } from "@clerk/nextjs";
 
 export default function LoginPage() {
   const {
@@ -38,66 +32,41 @@ export default function LoginPage() {
     resolver: zodResolver(LoginFormSchema),
   });
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [checkingToken, setCheckingToken] = useState(true);
+  const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
   const { toast } = useToast();
-  const { login } = useAuth();
 
-  useEffect(() => {
-    const token = Cookies.get("token");
-    if (token) {
-      try {
-        const decoded = jwtDecode<JwtPayload>(token);
-        const isExpired = decoded.exp * 1000 < Date.now();
-        if (isExpired) {
-          Cookies.remove("token");
-          setCheckingToken(false);
-        } else {
-          router.push("/");
-        }
-      } catch {
-        Cookies.remove("token");
-        setCheckingToken(false);
-      }
-    } else {
-      setCheckingToken(false);
-    }
-  }, [router]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const onSubmit = async (data: FormInput) => {
+    if (!isLoaded) return;
     setIsLoading(true);
+    setFormError("");
 
-    // Simulate API login, token from backend
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const result = await signIn.create({
+        identifier: data.email,
+        password: data.password,
+      });
 
-    // Simulated JWT token with expiry 1 hour from now
-    const fakeToken = JSON.stringify({
-      exp: Math.floor(Date.now() / 1000) + 60 * 60,
-      email: data.email,
-    });
-
-    // Save token to cookie (you might want to set secure and httpOnly flags on real backend cookies)
-    Cookies.set("token", btoa(fakeToken));
-
-    // Log the user in (your auth context)
-    login();
-
-    toast({
-      title: "Login successful",
-      description: "You have logged in successfully.",
-    });
-
-    router.push("/");
-    setIsLoading(false);
+      if (result.status === "complete") {
+        await setActive?.({ session: result.createdSessionId });
+        toast({
+          title: "Login successful",
+          description: "You have logged in successfully.",
+        });
+        router.push("/");
+      } else {
+        setFormError("Login not completed. Try again.");
+      }
+    } catch (err: any) {
+      const message = err?.errors?.[0]?.message || "Login failed.";
+      setFormError(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  if (checkingToken)
-    return (
-      <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[80vh]">
-        <p className="text-center text-lg">Checking authentication...</p>
-      </div>
-    );
 
   return (
     <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[80vh]">
@@ -108,36 +77,28 @@ export default function LoginPage() {
             Enter your email and password to login to your account
           </CardDescription>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                {...register("email")}
-              />
-              {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
-              )}
+              <Input id="email" type="email" placeholder="m@example.com" {...register("email")} />
+              {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-primary hover:underline"
-                >
+                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
                   Forgot password?
                 </Link>
               </div>
               <Input id="password" type="password" {...register("password")} />
-              {errors.password && (
-                <p className="text-sm text-red-600">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+
+            {formError && <p className="text-sm text-red-600">{formError}</p>}
+
+            <Button type="submit" className="w-full" disabled={isLoading || !isLoaded}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>
           </form>
@@ -145,26 +106,25 @@ export default function LoginPage() {
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-primary hover:underline">
-              Sign up
+             signUp
             </Link>
           </div>
         </CardContent>
+
         <CardFooter className="flex flex-col">
           <div className="relative w-full mb-2">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">
-                Or continue with
-              </span>
+              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 w-full">
-            <Button variant="outline" type="button">
+            <Button variant="outline" type="button" disabled>
               Google
             </Button>
-            <Button variant="outline" type="button">
+            <Button variant="outline" type="button" disabled>
               GitHub
             </Button>
           </div>

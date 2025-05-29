@@ -7,12 +7,12 @@ import { useAuth } from "@/context/auth-context"
 import { useToast } from "@/hooks/use-toast"
 
 export function HeaderButtons() {
-  const { isLoggedIn, logout } = useAuth()
+  const { isLoggedIn, signOut } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
 
   const handleLogout = () => {
-    logout()
+    signOut()
     toast({
       title: "Logged out",
       description: "You have been logged out successfully.",

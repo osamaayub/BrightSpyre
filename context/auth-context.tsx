@@ -1,44 +1,83 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, ReactNode } from "react";
+import { useSignIn, useSignUp, useUser, useClerk } from "@clerk/nextjs";
+import { AuthContextType } from "@/types/auth";
 
-const AuthContext = createContext({
+
+const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
-  login: () => {},
-  logout: () => {},
-})
+  signUp: async () => {},
+  signIn: async () => {},
+  signOut: async () => {},
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { user, isLoaded } = useUser();
+  const signUp = useSignUp();
+  const signIn = useSignIn();
+  const { signOut } = useClerk();
 
-  useEffect(() => {
-    // On mount, call an API to check if token cookie is valid
-    async function checkAuth() {
-      const res = await fetch('/api/auth/session') // your endpoint to verify token cookie
-      if (res.ok) {
-        setIsLoggedIn(true)
-      } else {
-        setIsLoggedIn(false)
-        localStorage.removeItem('isLoggedIn')
-      }
+  const isLoggedIn = isLoaded && !!user;
+
+  async function handleSignUp(email: string, password: string) {
+    if (!signUp) throw new Error("SignUp hook is not ready");
+    const signUpCreate = signUp.signUp?.create;
+    const signUpSetActive = signUp.setActive;
+
+    if (!signUpCreate) throw new Error("signUp.create is not available");
+    if (!signUpSetActive) throw new Error("signUp.setActive is not available");
+
+    const result = await signUpCreate({
+      emailAddress: email,
+      password,
+    });
+
+    if (result.status === "complete") {
+      await signUpSetActive({ session: result.createdSessionId });
+    } else {
+      throw new Error("Sign up incomplete - please verify your email.");
     }
-    checkAuth()
-  }, [])
-
-  const login = () => {
-    localStorage.setItem("isLoggedIn", "true")
-    setIsLoggedIn(true)
   }
 
-  const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' }) // endpoint to clear cookie
-    localStorage.removeItem("isLoggedIn")
-    setIsLoggedIn(false)
+  async function handleSignIn(email: string, password: string) {
+    if (!signIn) throw new Error("SignIn hook is not ready");
+    const signInCreate = signIn.signIn?.create;
+    const signInSetActive = signIn.setActive;
+
+    if (!signInCreate) throw new Error("signIn.create is not available");
+    if (!signInSetActive) throw new Error("signIn.setActive is not available");
+
+    const result = await signInCreate({
+      identifier: email,
+      password,
+    });
+
+    if (result.status === "complete") {
+      await signInSetActive({ session: result.createdSessionId });
+    } else {
+      throw new Error("Sign in incomplete - additional verification required.");
+    }
   }
 
-  return <AuthContext.Provider value={{ isLoggedIn, login, logout }}>{children}</AuthContext.Provider>
+  async function handleSignOut() {
+    await signOut();
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        signUp: handleSignUp,
+        signIn: handleSignIn,
+        signOut: handleSignOut,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-  return useContext(AuthContext)
+  return useContext(AuthContext);
 }

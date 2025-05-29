@@ -1,7 +1,8 @@
 export interface AuthContextType {
     isLoggedIn: boolean
-    login: () => void
-    logout: () => void
+  signUp: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
   }
 
  

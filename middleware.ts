@@ -1,20 +1,24 @@
-// middleware.ts
-import { NextRequest, NextResponse } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
-
-  const isProtectedRoute = ["/companies", "/jobs"].some((path) =>
-    request.nextUrl.pathname.startsWith(path)
-  );
-
-  if (isProtectedRoute && !token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/login',
+  'signup',
+  '/companies',
+  '/jobs',
+])
+//grants you access to user authentication state throughout your app.
+export default clerkMiddleware(async (auth, req) => {
+  if (!isPublicRoute(req)) {
+    await auth.protect()
   }
-
-  return NextResponse.next();
-}
+})
 
 export const config = {
-  matcher: ["/companies", "/jobs"],
-};
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
+}

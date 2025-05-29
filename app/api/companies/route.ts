@@ -46,7 +46,17 @@ export async function GET() {
       }
     );
 
-    return NextResponse.json(response.data);
+    const res=NextResponse.json(response.data);
+    res.cookies.set({
+      name:"token",
+      value:"token",
+      httpOnly:true,
+      path:"/",
+      maxAge:(tokenExpiry-Date.now()),
+      secure:process.env.NODE_ENV==="production",
+      sameSite:"lax"
+    })
+    return res;
   } catch (error: any) {
     return NextResponse.json({
       message:

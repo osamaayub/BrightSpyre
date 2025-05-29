@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/auth-context"
 import "./globals.css"
 import { Footer } from "@/components/footer/footer"
 import { Navbar } from "@/components/navbar"
+import {ClerkProvider} from "@clerk/nextjs"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -19,6 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
+    <ClerkProvider>
     <html lang="en">
       <body className={`${inter.className}`}>
         <ThemeProvider attribute="class" defaultTheme="light">
@@ -30,5 +32,6 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
+    </ClerkProvider>
   )
 }
