@@ -7,6 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormSchema } from "@/schemas/page";
 import { FormInput } from "@/types/type";
 
+
+
+type SupportedOAuthProviders = "oauth_google" | "oauth_github";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,7 +24,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 import { useState } from "react";
-import {useSignIn } from "@clerk/nextjs";
+import { useSignIn } from "@clerk/nextjs";
+import { Github } from "lucide-react";
 
 export default function LoginPage() {
   const {
@@ -68,6 +72,25 @@ export default function LoginPage() {
     }
   };
 
+  // OAuth sign-in handler for GitHub and Google
+  const handleOAuthSignIn = async (provider:SupportedOAuthProviders) => {
+    if (!isLoaded) return;
+    setIsLoading(true);
+    setFormError("");
+
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: provider // "github" or "google"
+        ,
+        redirectUrl: "https://evolved-wasp-18.clerk.accounts.dev/v1/oauth_callback",
+        redirectUrlComplete: "http://localhost:3000"
+      });
+    } catch (err: any) {
+      setFormError(err?.errors?.[0]?.message || "OAuth login failed.");
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-md">
@@ -82,18 +105,30 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" {...register("email")} />
-              {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                {...register("email")}
+              />
+              {errors.email && (
+                <p className="text-sm text-red-600">{errors.email.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link href="/forget-password" className="text-sm text-primary hover:underline">
+                <Link
+                  href="/forget-password"
+                  className="text-sm text-primary hover:underline"
+                >
                   Forgot password?
                 </Link>
               </div>
               <Input id="password" type="password" {...register("password")} />
-              {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-sm text-red-600">{errors.password.message}</p>
+              )}
             </div>
 
             {formError && <p className="text-sm text-red-600">{formError}</p>}
@@ -106,7 +141,7 @@ export default function LoginPage() {
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-primary hover:underline">
-             signUp
+              signUp
             </Link>
           </div>
         </CardContent>
@@ -117,15 +152,30 @@ export default function LoginPage() {
               <div className="w-full border-t"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-card px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-4 w-full">
-            <Button variant="outline" type="button" disabled>
-              Google
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => handleOAuthSignIn("oauth_github")}
+              className="hover:bg-purple-500"
+              disabled={isLoading || !isLoaded}
+            >
+              Continue with GitHub
             </Button>
-            <Button variant="outline" type="button" disabled>
-              GitHub
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => handleOAuthSignIn("oauth_google")}
+              className="hover:bg-purple-500"
+              disabled={isLoading || !isLoaded}
+            >
+              Continue with Google
             </Button>
           </div>
         </CardFooter>

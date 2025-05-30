@@ -9,7 +9,7 @@ export type FormInput={
 export type SignUpForm={
     firstName:string,
     lastName:string,
-    email:string,
+    emailAddress:string,
     password:string,
     confirmPassword:string
 }

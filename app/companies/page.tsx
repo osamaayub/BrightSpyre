@@ -13,15 +13,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
-
 import { Company } from "@/types/filter";
 import Image from "next/image";
 import { cleanDescription } from "@/helpers/page";
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchJobs();
@@ -37,6 +37,16 @@ export default function CompaniesPage() {
       setLoading(false);
     }
   }
+
+  const filteredCompanies = companies.filter((company) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      company.organization.toLowerCase().includes(query) ||
+      company.category_name.toLowerCase().includes(query) ||
+      company.city.toLowerCase().includes(query) ||
+      company.country.toLowerCase().includes(query)
+    );
+  });
 
   if (loading)
     return <div className="text-center text-gray-600">Loading companies...</div>;
@@ -54,12 +64,15 @@ export default function CompaniesPage() {
       <div className="mb-8 max-w-xl mx-auto md:mx-0">
         <div className="flex flex-col sm:flex-row gap-4">
           <Input
-            placeholder="Search companies..."
+            placeholder="Search companies by name, category or location..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
           <Button
             className="w-full sm:w-auto px-6 py-2 rounded-lg"
             size="lg"
+            onClick={() => {}}
           >
             Search
           </Button>
@@ -67,28 +80,11 @@ export default function CompaniesPage() {
       </div>
 
       {/* Companies Grid */}
-      <div
-        className="
-          grid
-          grid-cols-1
-          sm:grid-cols-2
-          md:grid-cols-3
-          lg:grid-cols-4
-          gap-6
-        "
-      >
-        {companies.map((company) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {filteredCompanies.map((company) => (
           <Card
             key={company.id}
-            className="
-              group flex flex-col justify-between
-              border border-gray-200 rounded-2xl shadow-md
-              bg-white
-              hover:shadow-lg hover:border-blue-400 hover:bg-blue-50
-              transition-colors  duration-300
-              p-6
-              min-h-[340px]
-            "
+            className="group flex flex-col justify-between border border-gray-200 rounded-2xl shadow-md bg-white hover:shadow-lg hover:border-blue-400 hover:bg-blue-50 transition-colors duration-300 p-6 min-h-[340px]"
           >
             <CardHeader className="p-0 mb-4">
               <div className="flex items-center gap-4">
@@ -109,7 +105,6 @@ export default function CompaniesPage() {
                 </div>
 
                 <div className="flex flex-col w-full overflow-hidden min-w-0">
-                  {/* min-w-0 allows truncation to work properly */}
                   <CardTitle className="text-lg font-semibold truncate max-w-full group-hover:text-blue-600 transition-colors">
                     {company.organization}
                   </CardTitle>
@@ -125,7 +120,9 @@ export default function CompaniesPage() {
                 <div className="flex flex-wrap justify-between gap-x-2 gap-y-1 text-gray-600">
                   <div className="flex gap-1">
                     <span className="font-medium">Location:</span>
-                    <span className=" sm:text-xs text-base whitespace-nowrap">{company.city}, {company.country}</span>
+                    <span className="sm:text-xs text-base whitespace-nowrap">
+                      {company.city}, {company.country}
+                    </span>
                   </div>
                   <div className="flex gap-1 items-center">
                     <span className="font-medium">Open Positions:</span>
@@ -156,6 +153,10 @@ export default function CompaniesPage() {
           </Card>
         ))}
       </div>
+
+      {filteredCompanies.length === 0 && (
+        <p className="text-center text-gray-500 mt-10">No companies match your search.</p>
+      )}
     </div>
   );
 }
