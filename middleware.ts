@@ -1,11 +1,13 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { clerkMiddleware, createRouteMatcher, } from '@clerk/nextjs/server'
 
 const isPublicRoute = createRouteMatcher([
   '/',
   '/login',
   '/signup',
-  '/companies',
   '/jobs',
+  '/jobs/(.*)',
+  '/companies',
+  '/companies/:id'
 ])
 //grants you access to user authentication state throughout your app.
 export default clerkMiddleware(async (auth, req) => {

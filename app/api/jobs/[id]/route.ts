@@ -1,40 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { getAuth } from "@clerk/nextjs/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params:{id:string}}
 ) {
+  const { userId } = getAuth(req);
+
+  if (!userId) {
+    return NextResponse.json({ message: "User not authenticated" }, { status: 401 });
+  }
+
+  const { id } = params;
+
+  if (!id) {
+    return NextResponse.json({ message: "Missing Job ID" }, { status: 400 });
+  }
+
   try {
-    const { id } =  await context.params;
-
-    if (!id) {
-      return NextResponse.json({ message: "Missing job ID" }, { status: 400 });
-    }
-
+    const token = req.headers.get("authorization");
     const response = await axios.get(
-      `https://resume.brightspyre.com/api/auth/jobs/detail/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
-        },
-      }
-    );
-
+  `https://resume.brightspyre.com/api/auth/jobs/detail/${id}`,
+  {
+    headers: {
+      Authorization: token || "",
+    }
+  }
+);
     return NextResponse.json(response.data);
   } catch (error: any) {
-    if (error.response) {
-      return NextResponse.json(
-        {
-          message: error.response.data?.message || "Error fetching data",
-        },
-        { status: error.response.status }
-      );
-    }
-
+    
     return NextResponse.json(
-      { message: "An unexpected error occurred." },
-      { status: 500 }
+      { message: error.response?.data?.message || "An unexpected error occurred." },
+      { status: error.response?.status || 500 }
     );
   }
 }

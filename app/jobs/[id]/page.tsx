@@ -20,12 +20,15 @@ import { Separator } from '@/components/ui/separator';
 import { ApplyButton } from '@/components/apply-button/apply-button';
 import { SaveJobButton } from '@/components/saveButon/save-job-button';
 import { cleanDescription } from '@/helpers/page';
+import {useAuth} from "@clerk/nextjs";
 
 export default function JobPage() {
   const { id } = useParams();
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+   const {getToken}=useAuth();
+      
 
   useEffect(() => {
     if (id) {
@@ -35,7 +38,14 @@ export default function JobPage() {
 
   const fetchJob = async () => {
     try {
-      const res = await axios.get(`/api/jobs/${id}`);
+      const token=await getToken();
+      const res = await axios.get(`/api/jobs/${id}`,{
+        headers:{
+          Authorization:`Bearer ${token}`
+        },
+        withCredentials:true
+      });
+      console.log(res.data);
       setJob(res.data);
     } catch (error: any) {
       setError(error.response?.data?.message || 'An unexpected error occurred.');
