@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { UserProfile } from "@clerk/nextjs"
 
 export default function ProfilePage() {
   // Mock user data
@@ -117,6 +118,7 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle>My Profile</CardTitle>
             </CardHeader>
+              <UserProfile routing="hash"/>
             <CardContent>
               <Tabs defaultValue="profile">
                 <TabsList className="grid w-full grid-cols-3">
