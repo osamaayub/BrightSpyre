@@ -19,7 +19,7 @@ export function JobsList({ filters }: { filters: Filters }) {
     city: true,
   });
 
-  const jobsPerPage = 90;
+ const jobsPerPage=116;
 
   useEffect(() => {
     async function fetchJobs() {
@@ -27,6 +27,7 @@ export function JobsList({ filters }: { filters: Filters }) {
       setError(null);
       try {
         const response = await axios.get("/api/jobs");
+        console.log(jobs);
         setJobs(response.data.results || []);
       } catch (err: any) {
         setError(err.response?.data?.message || "An unexpected error occurred.");

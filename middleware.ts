@@ -4,10 +4,11 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/login',
   '/signup',
-  '/jobs',
-  '/jobs/(.*)',
   '/companies',
+  '/jobs',
+    '/jobs/:id' ,
   '/companies/:id'
+
 ])
 //grants you access to user authentication state throughout your app.
 export default clerkMiddleware(async (auth, req) => {

@@ -11,6 +11,7 @@ async function getBearerToken() {
     return cachedToken;
   }
 
+
   // Request new token
   const tokenResponse = await axios.post(
     "https://resume.brightspyre.com/oauth/v2/token",
@@ -38,7 +39,7 @@ export async function GET() {
     const token = await getBearerToken();
 
     const response = await axios.get(
-      "https://resume.brightspyre.com/api/auth/jobs/list?page=1&limit=100",
+      "https://resume.brightspyre.com/api/auth/jobs/list?page=1&limit=116",
       {
         headers: {
           Authorization: `Bearer ${token}`,
