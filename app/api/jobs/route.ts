@@ -39,7 +39,7 @@ export async function GET() {
     const token = await getBearerToken();
 
     const response = await axios.get(
-      "https://resume.brightspyre.com/api/auth/jobs/list?page=1&limit=116",
+      "https://resume.brightspyre.com/api/auth/jobs/list?page=1&limit=500",
       {
         headers: {
           Authorization: `Bearer ${token}`,
