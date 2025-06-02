@@ -43,9 +43,7 @@ export default function JobPage() {
         headers:{
           Authorization:`Bearer ${token}`
         },
-        withCredentials:true
       });
-      console.log(res.data);
       setJob(res.data);
     } catch (error: any) {
       setError(error.response?.data?.message || 'An unexpected error occurred.');
