@@ -19,7 +19,7 @@ export function JobsList({ filters }: { filters: Filters }) {
     city: true,
   });
 
- const jobsPerPage=116;
+  const jobsPerPage = 25;
 
   useEffect(() => {
     async function fetchJobs() {
@@ -27,10 +27,11 @@ export function JobsList({ filters }: { filters: Filters }) {
       setError(null);
       try {
         const response = await axios.get("/api/jobs");
-        console.log(jobs);
         setJobs(response.data.results || []);
       } catch (err: any) {
-        setError(err.response?.data?.message || "An unexpected error occurred.");
+        setError(
+          err.response?.data?.message || "An unexpected error occurred."
+        );
       } finally {
         setLoading(false);
       }
@@ -76,10 +77,11 @@ export function JobsList({ filters }: { filters: Filters }) {
       const matchesOrganization =
         organization.length === 0 ||
         organization.some((filterOrganization) => {
-          const orgs = job.organization
-            ?.toLowerCase()
-            .split(/[,&]/)
-            .map((org: string) => org.trim()) || [];
+          const orgs =
+            job.organization
+              ?.toLowerCase()
+              .split(/[,&]/)
+              .map((org: string) => org.trim()) || [];
 
           return orgs.includes(filterOrganization.toLowerCase());
         });
@@ -96,9 +98,16 @@ export function JobsList({ filters }: { filters: Filters }) {
 
       const matchesCountry =
         country.length === 0 ||
-        country.map((c) => c.toLowerCase()).includes(job.country?.toLowerCase());
+        country
+          .map((c) => c.toLowerCase())
+          .includes(job.country?.toLowerCase());
 
-      if (matchesCategory && matchesOrganization && matchesCity && matchesCountry) {
+      if (
+        matchesCategory &&
+        matchesOrganization &&
+        matchesCity &&
+        matchesCountry
+      ) {
         seen.set(job.id, job);
       }
     });
@@ -122,11 +131,12 @@ export function JobsList({ filters }: { filters: Filters }) {
         ?.toLowerCase()
         .split(/[,&]/)
         .map((v: string) => v.trim())
-        .filter((v) =>
-          // allow valid city names only
-          /^[a-z\s]{3,}$/i.test(v) && // at least 3 letters, only alphabets & spaces
-          !/\d/.test(v) && // no numbers
-          !/[^\w\s]/.test(v) // no special characters
+        .filter(
+          (v) =>
+            // allow valid city names only
+            /^[a-z\s]{3,}$/i.test(v) && // at least 3 letters, only alphabets & spaces
+            !/\d/.test(v) && // no numbers
+            !/[^\w\s]/.test(v) // no special characters
         );
 
       values?.forEach((val: string) => {
