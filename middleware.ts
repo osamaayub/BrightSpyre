@@ -9,7 +9,8 @@ const isPublicRoute = createRouteMatcher([
     '/jobs/:id' ,
   '/companies/:id',
   '/api/jobs',
-  '/api/companies'
+  '/api/companies',
+  '/api/jobs/:id'
 
 ])
 //grants you access to user authentication state throughout your app.
