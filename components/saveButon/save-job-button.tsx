@@ -1,19 +1,20 @@
+"use client";
 
-"use client"
+import { Bookmark, BookmarkCheck } from "lucide-react";
+import { useState } from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Bookmark, BookmarkCheck } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/context/auth-context"
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/auth-context";
+import { Button } from "@/components/ui/button";
+
+import { useToast } from "@/hooks/use-toast";
 
 interface SaveJobButtonProps {
-  jobId: string
-  jobTitle: string
-  variant?: "default" | "outline" | "ghost"
-  size?: "default" | "sm" | "lg" | "icon"
-  className?: string
+  jobId: string;
+  jobTitle: string;
+  variant?: "default" | "outline" | "ghost";
+  size?: "default" | "sm" | "lg" | "icon";
+  className?: string;
 }
 
 export function SaveJobButton({
@@ -23,11 +24,11 @@ export function SaveJobButton({
   size = "default",
   className = "",
 }: SaveJobButtonProps) {
-  const [isSaved, setIsSaved] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
-  const { toast } = useToast()
-  const { isLoggedIn } = useAuth()
+  const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+  const { isLoggedIn } = useAuth();
 
   const handleSaveJob = async () => {
     if (!isLoggedIn) {
@@ -35,29 +36,35 @@ export function SaveJobButton({
       toast({
         title: "Login required",
         description: "Please login to save jobs",
-      })
-      router.push("/login")
-      return
+      });
+      router.push("/login");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     // Simulate API call to save/unsave job
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    setIsSaved(!isSaved)
-    setIsLoading(false)
+    setIsSaved(!isSaved);
+    setIsLoading(false);
 
     toast({
       title: isSaved ? "Job removed" : "Job saved",
       description: isSaved
         ? `${jobTitle} has been removed from your saved jobs.`
         : `${jobTitle} has been added to your saved jobs.`,
-    })
-  }
+    });
+  };
 
   return (
-    <Button variant={variant} size={size} className={className} onClick={handleSaveJob} disabled={isLoading}>
+    <Button
+      variant={variant}
+      size={size}
+      className={className}
+      onClick={handleSaveJob}
+      disabled={isLoading}
+    >
       {isSaved ? (
         <>
           <BookmarkCheck className="h-4 w-4 mr-2" />
@@ -70,5 +77,5 @@ export function SaveJobButton({
         </>
       )}
     </Button>
-  )
+  );
 }

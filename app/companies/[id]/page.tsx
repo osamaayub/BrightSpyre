@@ -20,7 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { ApplyButton } from '@/components/apply-button/apply-button';
 import { SaveJobButton } from '@/components/saveButon/save-job-button';
 import { cleanDescription } from '@/helpers/page';
-import { Company } from '@/types/filter';
+
 
 export default function JobPage() {
   const { id } = useParams();
