@@ -38,9 +38,11 @@ export function JobsList({ filters }: { filters: Filters }) {
     fetchJobs();
   }, []);
 
+  //toggle the filter section
   const toggleFilterSection = (key: keyof FilterToggles) =>
     setFilterToggles((prev) => ({ ...prev, [key]: !prev[key] }));
 
+  //reset filters
   const resetFilters = () => {
     setActiveFilters({
       category_name: [],
@@ -97,13 +99,18 @@ export function JobsList({ filters }: { filters: Filters }) {
 
   const getCounts = (field: keyof Filters) => {
     const counts: Record<string, number> = {};
+
     jobs.forEach((job) => {
       job[field]
         ?.split(/[,&]/)
         .map((s) => s.trim())
         .filter((v) => /^[a-z\s]{3,}$/i.test(v))
-        .forEach((v) => (counts[v] = (counts[v] || 0) + 1));
+        .forEach((v) => {
+          const key = v.charAt(0).toUpperCase() + v.slice(1).toLowerCase(); // Normalize casing
+          counts[key] = (counts[key] || 0) + 1;
+        });
     });
+
     return Object.entries(counts)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, count]) => ({ key, count }));
@@ -236,6 +243,9 @@ export function JobsList({ filters }: { filters: Filters }) {
             </div>
           ) : (
             <>
+              <div className="mb-4 text-sm text-black font-bold">
+                {filtered.length} jobs of {maxJobs}
+              </div>
               <div className="grid grid-cols-1 gap-4 max-w-2xl">
                 {filtered.map((job) => (
                   <JobCard key={job.id} job={job} />
