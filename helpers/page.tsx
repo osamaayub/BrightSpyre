@@ -1,14 +1,10 @@
-
 import { differenceInDays } from "date-fns";
 import he from "he";
 import striptags from "striptags";
 
-
-
-
 export function cleanDescription(html: string) {
-    return he.decode(striptags(html));
-  }
+  return he.decode(striptags(html));
+}
 
 // Function to parse "DD/MM/YYYY" format into a Date object
 export const parseDate = (dateString: string): Date => {
@@ -33,7 +29,10 @@ export const getPostedDaysAgo = (endDate: string): string => {
 // Limit displayed cities to 3 maximum and remove extra separators
 const maxCitiesToShow = 3;
 export const formatCities = (cityString: string): string => {
-  const cityList = cityString.split(/[,.]/).map(city => city.trim()).filter((city=>city!=""));
+  const cityList = cityString
+    ?.split(/[,.]/)
+    .map((city) => city.trim())
+    .filter((city) => city != "");
   return cityList.length > maxCitiesToShow
     ? `${cityList.slice(0, maxCitiesToShow).join(" • ")} +${cityList.length - maxCitiesToShow} more`
     : cityList.join(" • ");

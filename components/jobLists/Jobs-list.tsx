@@ -1,11 +1,11 @@
+// app/components/JobsList.tsx
 "use client";
-
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { Filters, Job, FilterToggles } from "@/types/filter";
 import JobCard from "@/components/jobCards/JobCard";
 import { Pagination } from "@/components/pagination/pagination-job";
-import JobCardSkeleton from "../jobskeleton/jobSkeleton";
+import JobCardSkeleton from "@/components/jobskeleton/jobSkeleton";
 
 export function JobsList({ filters }: { filters: Filters }) {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -20,28 +20,26 @@ export function JobsList({ filters }: { filters: Filters }) {
   });
 
   const jobsPerPage = 25;
+  const maxJobs = 125;
 
   useEffect(() => {
     async function fetchJobs() {
       setLoading(true);
       setError(null);
       try {
-        const response = await axios.get("/api/jobs");
-        setJobs(response.data.results || []);
+        const res = await axios.get("/api/jobs");
+        setJobs(res.data.results || []);
       } catch (err: any) {
-        setError(
-          err.response?.data?.message || "An unexpected error occurred."
-        );
+        setError(err.response?.data?.message || "An unexpected error occurred");
       } finally {
         setLoading(false);
       }
     }
     fetchJobs();
-  }, [filters]);
+  }, []);
 
-  const toggleFilterSection = (key: keyof FilterToggles) => {
+  const toggleFilterSection = (key: keyof FilterToggles) =>
     setFilterToggles((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
 
   const resetFilters = () => {
     setActiveFilters({
@@ -53,137 +51,100 @@ export function JobsList({ filters }: { filters: Filters }) {
     setCurrentPage(1);
   };
 
-  const handleFilterChange = (filterKey: keyof Filters, value: any) => {
-    setActiveFilters((prev) => ({ ...prev, [filterKey]: value }));
+  const handleFilterChange = (key: keyof Filters, value: string[]) => {
+    setActiveFilters((prev) => ({ ...prev, [key]: value }));
     setCurrentPage(1);
   };
 
-  const filteredJobs = useMemo(() => {
-    const seen = new Map();
-
-    jobs.forEach((job) => {
+  const filteredRaw = useMemo(() => {
+    return jobs.filter((job) => {
       const { category_name, organization, city, country } = activeFilters;
-
-      const matchesCategory =
-        category_name.length === 0 ||
-        category_name.some((filterCategory) =>
-          job.category_name
+      const matches = (key: string[], field?: string) =>
+        key.length === 0 ||
+        key.some((k) =>
+          field
             ?.toLowerCase()
             .split(/[,&]/)
-            .map((cat: string) => cat.trim())
-            .includes(filterCategory.toLowerCase())
+            .map((s) => s.trim())
+            .includes(k.toLowerCase())
         );
-
-      const matchesOrganization =
-        organization.length === 0 ||
-        organization.some((filterOrganization) => {
-          const orgs =
-            job.organization
-              ?.toLowerCase()
+      return (
+        matches(category_name, job.category_name) &&
+        matches(organization, job.organization) &&
+        (city.length === 0 ||
+          city.some((c) =>
+            (job.city || "")
               .split(/[,&]/)
-              .map((org: string) => org.trim()) || [];
-
-          return orgs.includes(filterOrganization.toLowerCase());
-        });
-
-      const matchesCity =
-        city.length === 0 ||
-        city.some((filterCity) =>
-          job.city
-            .toLowerCase()
-            .split(",")
-            .map((c: string) => c.trim())
-            .includes(filterCity.toLowerCase())
-        );
-
-      const matchesCountry =
-        country.length === 0 ||
-        country
-          .map((c) => c.toLowerCase())
-          .includes(job.country?.toLowerCase());
-
-      if (
-        matchesCategory &&
-        matchesOrganization &&
-        matchesCity &&
-        matchesCountry
-      ) {
-        seen.set(job.id, job);
-      }
+              .map((s) => s.trim().split(" ")[0].toLowerCase())
+              .includes(c.toLowerCase().split(" ")[0])
+          )) &&
+        (country.length === 0 ||
+          country.includes(job.country?.toLowerCase() || ""))
+      );
     });
+  }, [jobs, activeFilters]);
 
-    return Array.from(seen.values());
-  }, [activeFilters, jobs]);
+  const filtered = useMemo(() => {
+    const sliceToMax = filteredRaw.slice(0, maxJobs);
+    const start = (currentPage - 1) * jobsPerPage;
+    return sliceToMax.slice(start, start + jobsPerPage);
+  }, [filteredRaw, currentPage]);
 
-  //pagination
-  const indexOfLastJob = currentPage * jobsPerPage;
-  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+  //calculate the total number of pages
+  const totalPages = Math.ceil(
+    Math.min(filteredRaw.length, maxJobs) / jobsPerPage
+  );
 
-  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
-
-  //filters function
-  function getUniqueAndCount(field: keyof typeof activeFilters) {
+  const getCounts = (field: keyof Filters) => {
     const counts: Record<string, number> = {};
-
     jobs.forEach((job) => {
-      const values = job[field]
-        ?.toLowerCase()
-        .split(/[,&]/)
-        .map((v: string) => v.trim())
-        .filter(
-          (v) =>
-            // allow valid city names only
-            /^[a-z\s]{3,}$/i.test(v) && // at least 3 letters, only alphabets & spaces
-            !/\d/.test(v) && // no numbers
-            !/[^\w\s]/.test(v) // no special characters
-        );
-
-      values?.forEach((val: string) => {
-        counts[val] = (counts[val] || 0) + 1;
-      });
+      job[field]
+        ?.split(/[,&]/)
+        .map((s) => s.trim())
+        .filter((v) => /^[a-z\s]{3,}$/i.test(v))
+        .forEach((v) => (counts[v] = (counts[v] || 0) + 1));
     });
+    return Object.entries(counts)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, count]) => ({ key, count }));
+  };
 
-    return counts;
-  }
-
-  const categoryCounts = getUniqueAndCount("category_name");
-  const organizationCounts = getUniqueAndCount("organization");
-  const cityCounts = getUniqueAndCount("city");
+  const categoryList = getCounts("category_name");
+  const orgList = getCounts("organization");
+  const cityList = getCounts("city");
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6">
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Sidebar (Filters) */}
-        <aside className="w-full md:w-1/4 lg:w-1/5 bg-gray-50 p-4 rounded shadow-md h-fit">
+        <aside className="w-full md:w-1/4 bg-gray-50 p-4 rounded shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Filters</h2>
           </div>
 
-          {/* Category Filter */}
+          {/** CATEGORY */}
           <div className="mb-4">
             <h3
-              className="cursor-pointer font-medium mb-2"
+              className="cursor-pointer font-medium flex justify-between"
               onClick={() => toggleFilterSection("category")}
             >
-              Categories {filterToggles.category ? "▼" : "▶"}
+              Categories {filterToggles.category ? "−" : "+"}
             </h3>
             {filterToggles.category && (
-              <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
-                {Object.entries(categoryCounts).map(([cat, count]) => (
-                  <label key={cat} className="flex items-center space-x-2">
+              <div className="max-h-48 overflow-y-auto mt-2 space-y-1 text-sm">
+                {categoryList.map(({ key, count }) => (
+                  <label key={key} className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      checked={activeFilters.category_name.includes(cat)}
+                      checked={activeFilters.category_name.includes(key)}
                       onChange={(e) => {
-                        let newFilters = [...activeFilters.category_name];
-                        if (e.target.checked) newFilters.push(cat);
-                        else newFilters = newFilters.filter((f) => f !== cat);
-                        handleFilterChange("category_name", newFilters);
+                        const arr = activeFilters.category_name.includes(key)
+                          ? activeFilters.category_name.filter((k) => k !== key)
+                          : [...activeFilters.category_name, key];
+                        handleFilterChange("category_name", arr);
                       }}
                     />
                     <span>
-                      {cat} ({count})
+                      {key} ({count})
                     </span>
                   </label>
                 ))}
@@ -191,30 +152,30 @@ export function JobsList({ filters }: { filters: Filters }) {
             )}
           </div>
 
-          {/* Organization Filter */}
+          {/** ORGANIZATION */}
           <div className="mb-4">
             <h3
-              className="cursor-pointer font-medium mb-2"
+              className="cursor-pointer font-medium flex justify-between"
               onClick={() => toggleFilterSection("organization")}
             >
-              Organizations {filterToggles.organization ? "▼" : "▶"}
+              Organizations {filterToggles.organization ? "−" : "+"}
             </h3>
             {filterToggles.organization && (
-              <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
-                {Object.entries(organizationCounts).map(([org, count]) => (
-                  <label key={org} className="flex items-center space-x-2">
+              <div className="max-h-48 overflow-y-auto mt-2 space-y-1 text-sm">
+                {orgList.map(({ key, count }) => (
+                  <label key={key} className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      checked={activeFilters.organization.includes(org)}
+                      checked={activeFilters.organization.includes(key)}
                       onChange={(e) => {
-                        let newFilters = [...activeFilters.organization];
-                        if (e.target.checked) newFilters.push(org);
-                        else newFilters = newFilters.filter((f) => f !== org);
-                        handleFilterChange("organization", newFilters);
+                        const arr = activeFilters.organization.includes(key)
+                          ? activeFilters.organization.filter((k) => k !== key)
+                          : [...activeFilters.organization, key];
+                        handleFilterChange("organization", arr);
                       }}
                     />
                     <span>
-                      {org} ({count})
+                      {key} ({count})
                     </span>
                   </label>
                 ))}
@@ -222,69 +183,69 @@ export function JobsList({ filters }: { filters: Filters }) {
             )}
           </div>
 
-          {/* City Filter */}
+          {/** CITY */}
           <div>
             <h3
-              className="cursor-pointer font-medium mb-2"
+              className="cursor-pointer font-medium flex justify-between"
               onClick={() => toggleFilterSection("city")}
             >
-              Cities {filterToggles.city ? "▼" : "▶"}
+              Cities {filterToggles.city ? "−" : "+"}
             </h3>
             {filterToggles.city && (
-              <div className="space-y-1 max-h-48 overflow-y-auto text-sm">
-                {Object.entries(cityCounts).map(([city, count]) => (
-                  <label key={city} className="flex items-center space-x-2">
+              <div className="max-h-48 overflow-y-auto mt-2 space-y-1 text-sm">
+                {cityList.map(({ key, count }) => (
+                  <label key={key} className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      checked={activeFilters.city.includes(city)}
+                      checked={activeFilters.city.includes(key)}
                       onChange={(e) => {
-                        let newFilters = [...activeFilters.city];
-                        if (e.target.checked) newFilters.push(city);
-                        else newFilters = newFilters.filter((f) => f !== city);
-                        handleFilterChange("city", newFilters);
+                        const arr = activeFilters.city.includes(key)
+                          ? activeFilters.city.filter((k) => k !== key)
+                          : [...activeFilters.city, key];
+                        handleFilterChange("city", arr);
                       }}
                     />
                     <span>
-                      {city} ({count})
+                      {key} ({count})
                     </span>
                   </label>
                 ))}
               </div>
             )}
+            <button
+              onClick={resetFilters}
+              className="w-full text-sm bg-gray-300 px-3 py-2 rounded text-black hover:bg-purple-600"
+            >
+              Clear All
+            </button>
           </div>
-
-          <button
-            onClick={resetFilters}
-            className="w-full text-sm bg-gray-300 px-3 py-2 rounded text-black hover:bg-purple-600"
-          >
-            Clear All
-          </button>
         </aside>
 
-        {/* Job Listings */}
-        <main className="flex-1">
+        <main className="w-full md:w-3/4">
           {loading ? (
-            <div className="text-center text-gray-600">
-              <JobCardSkeleton />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <JobCardSkeleton key={i} />
+              ))}
             </div>
           ) : error ? (
-            <p className="text-center text-red-600">{error}</p>
+            <div className="text-center text-red-600 py-10">{error}</div>
+          ) : filteredRaw.length === 0 ? (
+            <div className="text-center text-gray-600 py-10">
+              No jobs found.
+            </div>
           ) : (
             <>
-              <div className="mb-5 text-black">
-                {currentJobs.length} of {filteredJobs.length} jobs
+              <div className="grid grid-cols-1 gap-4 max-w-2xl">
+                {filtered.map((job) => (
+                  <JobCard key={job.id} job={job} />
+                ))}
               </div>
-              <div className="grid grid-cols-1 gap-6 max-w-xl">
-                {currentJobs.length === 0 ? (
-                  <p className="text-center col-span-full">No jobs found.</p>
-                ) : (
-                  currentJobs.map((job) => <JobCard key={job.id} job={job} />)
-                )}
-              </div>
-              <div className="mt-6">
+
+              <div className="mt-8 flex justify-center">
                 <Pagination
-                  currentPage={currentPage}
                   totalPages={totalPages}
+                  currentPage={currentPage}
                   onPageChange={setCurrentPage}
                 />
               </div>

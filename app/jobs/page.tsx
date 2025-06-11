@@ -1,17 +1,15 @@
 "use client";
 
-
 import { JobsList } from "@/components/jobLists/Jobs-list";
 import { Filters } from "@/types/filter";
 import { useState } from "react";
 
-
 export default function JobPage() {
   const [filters, setFilters] = useState<Filters>({
-    category_name:[],
+    category_name: [],
     city: [],
-    organization:[],
-    country:[]
+    organization: [],
+    country: [],
   });
   return (
     <div className="container mx-auto px-4 py-8">
@@ -19,8 +17,7 @@ export default function JobPage() {
 
       {/* Display Jobs List */}
       {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6"> */}
-          <JobsList filters={filters} />
-
+      <JobsList filters={filters} />
     </div>
   );
 }

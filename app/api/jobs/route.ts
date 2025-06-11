@@ -32,7 +32,6 @@ async function getBearerToken() {
 
   return cachedToken;
 }
-
 export async function GET() {
   try {
     const token = await getBearerToken();
@@ -46,8 +45,7 @@ export async function GET() {
       }
     );
 
-    const res = NextResponse.json(response.data);
-    return res;
+    return NextResponse.json(response.data);
   } catch (error: any) {
     return NextResponse.json({
       message:
