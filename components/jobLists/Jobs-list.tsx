@@ -90,7 +90,8 @@ export function JobsList({ filters }: { filters: Filters }) {
 
   const filtered = useMemo(() => {
     const start = (currentPage - 1) * jobsPerPage;//0
-    return filteredRaw.slice(start,jobsPerPage);
+    const end=start+jobsPerPage;
+    return filteredRaw.slice(start,start+end);//0,0+25
   }, [filteredRaw,currentPage]);
 
   //calculate the total number of pages
