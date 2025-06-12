@@ -29,7 +29,7 @@ export function JobsList({ filters }: { filters: Filters }) {
       try {
         const res = await axios.get("/api/jobs");
         setJobs(res.data.results || []);
-      } catch (err: any) {
+      } catch (err: string | any) {
         setError(err.response?.data?.message || "An unexpected error occurred");
       } finally {
         setLoading(false);
@@ -66,7 +66,7 @@ export function JobsList({ filters }: { filters: Filters }) {
         key.some((k) =>
           field
             ?.toLowerCase()
-            .split(/[,&]/)
+            .split(/[, &]/)
             .map((s) => s.trim())
             .includes(k.toLowerCase())
         );
@@ -76,7 +76,7 @@ export function JobsList({ filters }: { filters: Filters }) {
         (city.length === 0 ||
           city.some((c) =>
             (job.city || "")
-              .split(/[,&]/)
+              .split(/\s*(?:,|&|and)\s*/i)
               .map((s) => s.trim().split(" ")[0].toLowerCase())
               .includes(c.toLowerCase().split(" ")[0])
           )) &&
@@ -102,12 +102,15 @@ export function JobsList({ filters }: { filters: Filters }) {
 
     jobs.forEach((job) => {
       job[field]
-        ?.split(/[,&]/)
+        ?.split(/\s*(?:,|&|and)\s*/i) // split by comma or &
         .map((s) => s.trim())
-        .filter((v) => /^[a-z\s]{3,}$/i.test(v))
+        .filter((v) => /^[a-z\s]{3,}$/i.test(v)) // filter only valid city names
         .forEach((v) => {
-          const key = v.charAt(0).toUpperCase() + v.slice(1).toLowerCase(); // Normalize casing
-          counts[key] = (counts[key] || 0) + 1;
+          const formatted = v
+            .toLowerCase()
+            .replace(/\b\w/g, (char) => char.toUpperCase()); // Proper case
+
+          counts[formatted] = (counts[formatted] || 0) + 1;
         });
     });
 
