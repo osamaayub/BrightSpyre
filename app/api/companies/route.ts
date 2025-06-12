@@ -1,3 +1,4 @@
+// app/api/jobs/route.ts
 import axios from "axios";
 import { NextResponse } from "next/server";
 
@@ -11,23 +12,22 @@ async function getBearerToken() {
     return cachedToken;
   }
 
-  // Request new token
   const tokenResponse = await axios.post(
-    "https://resume.brightspyre.com/oauth/v2/token",
-    new URLSearchParams({
-      grant_type: "client_credentials",
-      client_id: process.env.CLIENT_ID!,
-      client_secret: process.env.CLIENT_SECRET!,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
+      "https://resume.brightspyre.com/oauth/v2/token",
+      new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: process.env.CLIENT_ID!,
+        client_secret: process.env.CLIENT_SECRET!,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
   );
+
   const data = tokenResponse.data;
   cachedToken = data.access_token;
-  // expires_in is seconds, subtract 60 sec buffer
   tokenExpiry = now + (data.expires_in - 60) * 1000;
 
   return cachedToken;
@@ -38,21 +38,23 @@ export async function GET() {
     const token = await getBearerToken();
 
     const response = await axios.get(
-      "https://resume.brightspyre.com/api/auth/jobs/list?page=1&limit=100",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+        "https://resume.brightspyre.com/api/auth/jobs/list?limit=all",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
     );
 
-    const res=NextResponse.json(response.data);
-    return res;
+    return NextResponse.json(response.data, { status: 200 });
   } catch (error: any) {
-    return NextResponse.json({
-      message:
-        `Error fetching data: ` +
-        (error.message || error.response?.data?.message || "Unknown error"),
-    });
+    return NextResponse.json(
+        {
+          message:
+              `Error fetching data: ` +
+              (error.message || error.response?.data?.message || "Unknown error"),
+        },
+        { status: 500 }
+    );
   }
 }
