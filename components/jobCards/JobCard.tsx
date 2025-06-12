@@ -6,13 +6,16 @@ import { Button } from "@/components/ui/button";
 import { cleanDescription } from "@/helpers/page";
 import { Job } from "@/types/filter";
 
-import {formatCities,getPostedDaysAgo } from "@/helpers/page";
-
+import { formatCities, getPostedDaysAgo } from "@/helpers/page";
 
 const JobCard = ({ job }: { job: Job }) => {
-  const postedDaysAgo = job.end_date ? getPostedDaysAgo(job.end_date) : "Unknown";
-  const formattedCity = job.city ? formatCities(job.city):"";
-  const salaryText = job.salary ? `PKR ${job.salary.toLocaleString()}` : "Salary not disclosed";
+  const postedDaysAgo = job.end_date
+    ? getPostedDaysAgo(job.end_date)
+    : "Unknown";
+  const formattedCity = job.city ? formatCities(job.city) : "";
+  const salaryText = job.salary
+    ? ` ${job.salary.toLocaleString()}`
+    : "Salary not disclosed";
 
   return (
     <Card className="group flex flex-col hover:rotate-[0.5deg] justify-between w-full h-full shadow-md border border-gray-200 rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-blue-400 hover:bg-blue-50">
@@ -20,29 +23,35 @@ const JobCard = ({ job }: { job: Job }) => {
         {/* Header with Logo */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex justify-center mb-2">
-            {typeof job.organization_logo === "string" && job.organization_logo.startsWith("http") && (
-              <Image
-                src={job.organization_logo}
-                alt="Organization Logo"
-                width={64}
-                height={64}
-                className="rounded-full transition-transform duration-200 group-hover:scale-100"
-              />
-            )}
+            {typeof job.organization_logo === "string" &&
+              job.organization_logo.startsWith("http") && (
+                <Image
+                  src={job.organization_logo}
+                  alt="Organization Logo"
+                  width={64}
+                  height={64}
+                  className="rounded-full transition-transform duration-200 group-hover:scale-100"
+                />
+              )}
           </div>
           <div className="flex justify-between  items-center uppercase text-gray-600 px-1">
             <p className="text-text-base text-gray-400">{job.country}</p>
           </div>
         </div>
-        
+
         {/* Job Title & Posted Days Ago */}
         <div className="flex justify-between items-center">
           <h3 className="text-sm font-medium text-blue-700 underline truncate">
-            <Link href={`/jobs/${job.encrypted_id}`} className="hover:text-blue-600 transition-colors duration-300 whitespace-nowrap">
+            <Link
+              href={`/jobs/${job.encrypted_id}`}
+              className="hover:text-blue-600 transition-colors duration-300 whitespace-nowrap"
+            >
               {job.title}
             </Link>
           </h3>
-          <p className="text-sm text-gray-400 uppercase text-right whitespace-nowrap">{postedDaysAgo}</p>
+          <p className="text-sm text-gray-400 uppercase text-right whitespace-nowrap">
+            {postedDaysAgo}
+          </p>
         </div>
         {/* Category */}
         <div className="uppercase  text-sm text-gray-400 font-bold">
@@ -64,19 +73,24 @@ const JobCard = ({ job }: { job: Job }) => {
         <div className="mt-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-x-4">
           {/* Left Side: Cities & Salary */}
           <div className="text-sm  text-gray-600">
-            <p>{formattedCity}</p> 
+            <p>{formattedCity}</p>
             <p className="font-medium text-gray-800"> {salaryText}</p>
           </div>
 
           {/* Right Side: Save and View Job Buttons */}
           <div className="flex sm:flex-row sm:items-center sm:gap-3">
-            <SaveJobButton jobId={job.id} jobTitle={job.title} className="hover:bg:blue-500" />
+            <SaveJobButton
+              jobId={job.id}
+              jobTitle={job.title}
+              className="hover:bg:blue-500"
+            />
             <Link href={`/jobs/${job.encrypted_id}`}>
-              <Button size="sm" className="text-sm">View Job</Button>
+              <Button size="sm" className="text-sm">
+                View Job
+              </Button>
             </Link>
           </div>
         </div>
-
       </CardContent>
     </Card>
   );
