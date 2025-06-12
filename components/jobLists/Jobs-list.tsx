@@ -64,14 +64,8 @@ export function JobsList({ filters }: { filters: Filters }) {
     return jobs.filter((job) => {
       const { category_name, organization, city, country } = activeFilters;
       const matches = (key: string[], field?: string) =>
-        key.length === 0 ||
-        key.some((k) =>
-          field
-            ?.toLowerCase()
-            .split(/[, &]/)
-            .map((s) => s.trim())
-            .includes(k.toLowerCase())
-        );
+          key.length === 0 ||
+          key.some((k) => (field || "").toLowerCase().includes(k.toLowerCase()));
       return (
         matches(category_name, job.category_name) &&
         matches(organization, job.organization) &&
@@ -90,7 +84,7 @@ export function JobsList({ filters }: { filters: Filters }) {
 
   const filtered = useMemo(() => {
     const start = (currentPage - 1) * jobsPerPage;//0
-    const end=start+jobsPerPage;
+    const end=start+jobsPerPage;//ending page for
     return filteredRaw.slice(start,start+end);//0,0+25
   }, [filteredRaw,currentPage]);
 
