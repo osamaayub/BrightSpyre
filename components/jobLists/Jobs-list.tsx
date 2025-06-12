@@ -1,11 +1,11 @@
 // app/components/JobsList.tsx
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Filters, Job, FilterToggles } from "@/types/filter";
+import React, { useState, useEffect, useMemo } from "react";
 import JobCard from "@/components/jobCards/JobCard";
-import { Pagination } from "@/components/pagination/pagination-job";
 import JobCardSkeleton from "@/components/jobskeleton/jobSkeleton";
+import { Pagination } from "@/components/pagination/pagination-job";
+import { Filters, Job, FilterToggles } from "@/types/filter";
 
 export function JobsList({ filters }: { filters: Filters }) {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -20,23 +20,25 @@ export function JobsList({ filters }: { filters: Filters }) {
   });
 
   const jobsPerPage = 25;
-  const maxJobs = 125;
+  const maxJobs = jobs.length;
 
   useEffect(() => {
-    async function fetchJobs() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await axios.get("/api/jobs");
-        setJobs(res.data.results || []);
-      } catch (err: string | any) {
-        setError(err.response?.data?.message || "An unexpected error occurred");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchJobs();
-  }, []);
+        async function fetchJobs() {
+          setLoading(true);
+          setError(null);
+          try {
+            const res = await axios.get("/api/jobs");
+            setJobs(res.data.results || []);
+          } catch (err: string | any) {
+            setError(err.response?.data?.message || "An unexpected error occurred");
+          } finally {
+            setLoading(false);
+          }
+        }
+
+        fetchJobs();
+      },
+      []);
 
   //toggle the filter section
   const toggleFilterSection = (key: keyof FilterToggles) =>
@@ -87,22 +89,22 @@ export function JobsList({ filters }: { filters: Filters }) {
   }, [jobs, activeFilters]);
 
   const filtered = useMemo(() => {
-    const sliceToMax = filteredRaw.slice(0, maxJobs);
-    const start = (currentPage - 1) * jobsPerPage;
-    return sliceToMax.slice(start, start + jobsPerPage);
-  }, [filteredRaw, currentPage]);
+    const start = (currentPage - 1) * jobsPerPage;//0
+    return filteredRaw.slice(start,jobsPerPage);
+  }, [filteredRaw,currentPage]);
 
   //calculate the total number of pages
   const totalPages = Math.ceil(
-    Math.min(filteredRaw.length, maxJobs) / jobsPerPage
+      (filteredRaw.length / jobsPerPage)
   );
+
 
   const getCounts = (field: keyof Filters) => {
     const counts: Record<string, number> = {};
 
     jobs.forEach((job) => {
       job[field]
-        ?.split(/\s*(?:,|&|and)\s*/i) // split by comma or &
+        ?.split(/\s*(?:,|&|and)\s*/i) // split by comma or & or and
         .map((s) => s.trim())
         .filter((v) => /^[a-z\s]{3,}$/i.test(v)) // filter only valid city names
         .forEach((v) => {

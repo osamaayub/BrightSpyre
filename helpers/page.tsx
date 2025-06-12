@@ -26,7 +26,7 @@ export const getPostedDaysAgo = (endDate: string): string => {
   return `Posted ${daysAgo} days ago`;
 };
 
-// Limit displayed cities to 3 maximum and remove extra separators
+// Limit displayed cities to maximum 3 and removed extra separators
 const maxCitiesToShow = 3;
 export const formatCities = (cityString: string): string => {
   const cityList = cityString
