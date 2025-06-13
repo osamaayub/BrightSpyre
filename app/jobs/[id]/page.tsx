@@ -166,10 +166,10 @@ export default function JobPage() {
                     {job.organization_logo && (
                       <Image
                         src={job.organization_logo}
-                        alt={`${job.organization} logo`}
-                        fill
-                        className="object-cover rounded-full"
-                        sizes="96px"
+                        alt="Organization Logo"
+                        width={32}
+                        height={32}
+                        className="object-cover w-16 h-16 rounded-full"
                       />
                     )}
                   </div>

@@ -18,20 +18,22 @@ const JobCard = ({ job }: { job: Job }) => {
     : "Salary not disclosed";
 
   return (
-    <Card className="group flex flex-col hover:rotate-[0.5deg] justify-between w-full h-full shadow-md border border-gray-200 rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-blue-400 hover:bg-blue-50">
+    <Card className="group flex flex-col hover:rotate-[0.5deg] justify-between w-full h-full shadow-md border border-gray-200 rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-blue-400 hover:bg-blue-300">
       <CardContent className="p-6 flex flex-col space-y-4 h-full">
         {/* Header with Logo */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex justify-center mb-2">
             {typeof job.organization_logo === "string" &&
               job.organization_logo.startsWith("http") && (
-                <Image
-                  src={job.organization_logo}
-                  alt="Organization Logo"
-                  width={64}
-                  height={64}
-                  className=" rounded-full bg-transparent transition-transform duration-200 group-hover:scale-100"
-                />
+                <div className="w-16 h-16 flex items-center justify-center overflow-hidden rounded-full">
+                  <Image
+                    src={job.organization_logo}
+                    alt="Organization Logo"
+                    width={64}
+                    height={64}
+                    className=" object-cover w-16 h-auto rounded-full"
+                  />
+                </div>
               )}
           </div>
           <div className="flex justify-between  items-center uppercase text-gray-600 px-1">
