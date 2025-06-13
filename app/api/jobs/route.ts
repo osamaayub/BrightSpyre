@@ -35,7 +35,6 @@ async function getBearerToken() {
 export async function GET() {
   try {
     const token = await getBearerToken();
-
     const response = await axios.get(
       "https://resume.brightspyre.com/api/auth/jobs/list?limit=all",
       {
