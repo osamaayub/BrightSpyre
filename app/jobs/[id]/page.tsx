@@ -116,23 +116,19 @@ export default function JobPage() {
 
                 <CardContent className="space-y-8">
                   <section>
-                    <h3 className="text-base sm:text-lg  mb-4 text-gray-800 border-b border-gray-300 pb-2">
-                      Job Description {cleanDescription(job.description)}
+                    <h3 className="text-lg sm:text-xl font-semibold mb-3 text-gray-900">
+                      Job Description
                     </h3>
-                    {/* <div
-                      className="prose max-w-none text-gray-700"
-                      dangerouslySetInnerHTML={{ __html: job?.description }}
-                    /> */}
+                    <div className="prose prose-sm sm:prose-base max-w-none text-gray-700 bg-gray-50 rounded-lg p-4 sm:p-6 leading-relaxed shadow-sm">
+                      {cleanDescription(job.description)}
+                    </div>
                   </section>
 
                   <Separator />
 
                   <section>
-                    <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-gray-800 border-b border-gray-300 pb-2">
-                      Job End Date
-                    </h3>
                     <p className="text-gray-600 text-base sm:text-lg">
-                      {job?.end_date}
+                      end_date: {job?.end_date}
                     </p>
                   </section>
                 </CardContent>
