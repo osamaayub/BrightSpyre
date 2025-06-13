@@ -61,7 +61,7 @@ const JobCard = ({ job }: { job: Job }) => {
         </div>
 
         {/* Job Description */}
-        <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
+        <ul className="list-disc pl-5 text-sm font-inter text-gray-600 space-y-1">
           {cleanDescription(job.description)
             .split(/[\n]/) // Split by newline or period
             .filter((line) => line.trim() !== "") // Remove empty lines

@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer/footer";
 import { Navbar } from "@/components/navbar";
 import { ClerkProvider } from "@clerk/nextjs";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata = {
   title: "Brightspyre - Find Your Dream Job",
@@ -25,7 +25,7 @@ export default function RootLayout({
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
     >
       <html lang="en">
-        <body className={`${inter.className}`}>
+        <body className={`${inter.variable}`}>
           <ThemeProvider attribute="class" defaultTheme="light">
             <AuthProvider>
               <Navbar />

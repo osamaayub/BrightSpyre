@@ -167,8 +167,8 @@ export default function JobPage() {
                       <Image
                         src={job.organization_logo}
                         alt="Organization Logo"
-                        width={32}
-                        height={32}
+                        width={64}
+                        height={64}
                         className="object-cover w-16 h-16 rounded-full"
                       />
                     )}
@@ -176,7 +176,7 @@ export default function JobPage() {
                   <h3 className="text-lg font-semibold whitespace-nowrap text-gray-800 truncate max-w-full">
                     {job?.organization}
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed px-2 md:px-6 max-w-full truncate">
+                  <p className="text-gray-600 text-lg font-inter leading-relaxed px-2 md:px-6 max-w-full truncate">
                     {cleanDescription(job?.description)}
                   </p>
                   <Link href={`${job.url}`}>
