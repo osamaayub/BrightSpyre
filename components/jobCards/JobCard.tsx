@@ -30,7 +30,7 @@ const JobCard = ({ job }: { job: Job }) => {
                   alt="Organization Logo"
                   width={64}
                   height={64}
-                  className="rounded-full transition-transform duration-200 group-hover:scale-100"
+                  className=" rounded-full bg-transparent transition-transform duration-200 group-hover:scale-100"
                 />
               )}
           </div>
