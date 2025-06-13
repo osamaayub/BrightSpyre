@@ -116,13 +116,13 @@ export default function JobPage() {
 
                 <CardContent className="space-y-8">
                   <section>
-                    <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800 border-b border-gray-300 pb-2">
-                      Job Description
+                    <h3 className="text-base sm:text-lg  mb-4 text-gray-800 border-b border-gray-300 pb-2">
+                      Job Description {cleanDescription(job.description)}
                     </h3>
-                    <div
+                    {/* <div
                       className="prose max-w-none text-gray-700"
                       dangerouslySetInnerHTML={{ __html: job?.description }}
-                    />
+                    /> */}
                   </section>
 
                   <Separator />
@@ -176,7 +176,7 @@ export default function JobPage() {
                   <h3 className="text-lg font-semibold whitespace-nowrap text-gray-800 truncate max-w-full">
                     {job?.organization}
                   </h3>
-                  <p className="text-gray-600 text-lg font-inter leading-relaxed px-2 md:px-6 max-w-full truncate">
+                  <p className="text-gray-600 text-base sm:text-lg font-inter leading-relaxed px-2 md:px-6 max-w-full truncate [&_p]:font-inter [&_li]:font-inter [&_h1]:font-inter [&_h2]:font-inter">
                     {cleanDescription(job?.description)}
                   </p>
                   <Link href={`${job.url}`}>
