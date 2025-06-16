@@ -1,4 +1,4 @@
-import { differenceInDays } from "date-fns";
+import { differenceInDays, isValid, parseISO } from "date-fns";
 import he from "he";
 import striptags from "striptags";
 
@@ -21,8 +21,13 @@ export const estimateEquity = (salary: number): string => {
 };
 
 // Function to calculate "Posted X days ago"
-export const getPostedDaysAgo = (endDate: string): string => {
-  const daysAgo = differenceInDays(new Date(), parseDate(endDate));
+export const getPostedDaysAgo = (start_date: string): string => {
+  const parsedDate = parseISO(start_date);
+  //check if the parsed date is valid or not
+  if (isValid(parseDate)) {
+    return "Invalid Date";
+  }
+  const daysAgo = differenceInDays(new Date(), parsedDate);
   return `Posted ${daysAgo} days ago`;
 };
 

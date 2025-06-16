@@ -19,6 +19,7 @@ export type Job = {
   organization?: string;
   salary: number;
   end_date: string;
+  start_date: string;
 };
 
 export type Company = {

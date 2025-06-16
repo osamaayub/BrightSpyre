@@ -9,12 +9,12 @@ import { Job } from "@/types/filter";
 import { formatCities, getPostedDaysAgo } from "@/helpers/page";
 
 const JobCard = ({ job }: { job: Job }) => {
-  const postedDaysAgo = job.end_date
-    ? getPostedDaysAgo(job.end_date)
+  const postedDaysAgo = job.start_date
+    ? getPostedDaysAgo(job.start_date)
     : "Unknown";
   const formattedCity = job.city ? formatCities(job.city) : "";
   const salaryText = job.salary
-    ? ` ${job.salary.toLocaleString()}`
+    ? ` PKR ${job.salary.toLocaleString()}`
     : "Salary not disclosed";
 
   return (
