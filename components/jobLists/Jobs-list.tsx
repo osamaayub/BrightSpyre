@@ -6,16 +6,6 @@ import JobCard from "@/components/jobCards/JobCard";
 import JobCardSkeleton from "@/components/jobskeleton/jobSkeleton";
 import { Pagination } from "@/components/pagination/pagination-job";
 import { Filters, Job, FilterToggles } from "@/types/filter";
-import { getPostedDaysAgoNumber } from "@/helpers/page";
-
-// Sort jobs by posted days ago in ascending order (oldest first)
-function sortJobsByPostedDate(jobs: Job[]): Job[] {
-  return [...jobs].sort((a, b) => {
-    const daysA = getPostedDaysAgoNumber(a.start_date);
-    const daysB = getPostedDaysAgoNumber(b.start_date);
-    return daysA - daysB;
-  });
-}
 
 export function JobsList({ filters }: { filters: Filters }) {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -38,8 +28,9 @@ export function JobsList({ filters }: { filters: Filters }) {
       setError(null);
       try {
         const res = await axios.get("/api/jobs");
+
         // Sort jobs in ascending order by posted date
-        setJobs(sortJobsByPostedDate(res.data.results || []));
+        setJobs(res.data.results || []);
       } catch (err: string | any) {
         setError(err.response?.data?.message || "An unexpected error occurred");
       } finally {
