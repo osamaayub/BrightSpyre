@@ -169,8 +169,8 @@ export default function JobPage() {
                       <Image
                         src={job.organization_logo}
                         alt="Organization Logo"
-                        width={264}
-                        height={10}
+                        width={260}
+                        height={20}
                         className="object-cover rounded-full"
                       />
                     )}
