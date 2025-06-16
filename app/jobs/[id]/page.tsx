@@ -163,15 +163,15 @@ export default function JobPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center text-center space-y-4 px-4">
-                  <div className="relative w-20 h-20 bg-transparent sm:w-24 sm:h-24 rounded-full overflow-hidden flex items-center justify-center text-4xl font-bold text-gray-400">
+                  <div className="relative w-48 h-auto  sm:w-24 sm:h-24 rounded-full overflow-hidden flex items-center justify-center text-4xl font-bold text-gray-400">
                     {job?.organization?.charAt(0)}
                     {job.organization_logo && (
                       <Image
                         src={job.organization_logo}
                         alt="Organization Logo"
-                        width={64}
-                        height={64}
-                        className="object-cover w-16 h-16 rounded-full"
+                        width={264}
+                        height={10}
+                        className="object-cover rounded-full"
                       />
                     )}
                   </div>

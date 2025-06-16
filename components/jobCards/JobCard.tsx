@@ -25,13 +25,13 @@ const JobCard = ({ job }: { job: Job }) => {
           <div className="flex justify-center mb-2">
             {typeof job.organization_logo === "string" &&
               job.organization_logo.startsWith("http") && (
-                <div className="w-16 h-16 flex items-center justify-center overflow-hidden rounded-full">
+                <div className="w-48 h-auto flex items-center justify-center overflow-hidden rounded-full">
                   <Image
                     src={job.organization_logo}
                     alt="Organization Logo"
-                    width={64}
-                    height={64}
-                    className=" object-cover w-16 h-auto rounded-full"
+                    width={200}
+                    height={10}
+                    className=" object-cover  rounded-full"
                   />
                 </div>
               )}
