@@ -30,6 +30,10 @@ export const getPostedDaysAgo = (start_date: string): string => {
   const daysAgo = differenceInDays(new Date(), parsedDate);
   return `Posted ${daysAgo} days ago`;
 };
+//for sorting the jobs based on the start date
+export const getPostedDaysAgoNumber = (start_date: string): number => {
+  return differenceInDays(new Date(), new Date(start_date));
+};
 
 // Limit displayed cities to maximum 3 and removed extra separators
 const maxCitiesToShow = 3;
