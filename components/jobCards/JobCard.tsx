@@ -26,13 +26,13 @@ const JobCard = ({ job }: { job: Job }) => {
             <div className="flex justify-center mb-2">
               {typeof job.organization_logo === "string" &&
                 job.organization_logo.startsWith("http") && (
-                  <div className="w-48 h-auto flex items-center justify-center overflow-hidden rounded-full">
+                  <div className=" relative w-96 flex items-center justify-center overflow-hidden rounded-full">
                     <Image
                       src={job.organization_logo}
                       alt="Organization Logo"
-                      width={100}
-                      height={20}
-                      className=" object-cover   bg-transparent rounded-full"
+                      width={160}
+                      height={40}
+                      className=" object-cover  max-w-full max-h-full  rounded-full"
                     />
                   </div>
                 )}
@@ -81,14 +81,14 @@ const JobCard = ({ job }: { job: Job }) => {
             </div>
 
             {/* Right Side: Save and View Job Buttons */}
-            <div className="flex sm:flex-row sm:items-center sm:gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
               <SaveJobButton
                 jobId={job.id}
                 jobTitle={job.title}
                 className="hover:bg:blue-500"
               />
               <Link href={`/jobs/${job.encrypted_id}`}>
-                <Button size="sm" className="text-sm">
+                <Button size="sm" className="text-sm w-full sm:w-auto">
                   View Job
                 </Button>
               </Link>

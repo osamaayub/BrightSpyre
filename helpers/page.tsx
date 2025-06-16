@@ -23,10 +23,12 @@ export const estimateEquity = (salary: number): string => {
 // Function to calculate "Posted X days ago"
 export const getPostedDaysAgo = (start_date: string): string => {
   const parsedDate = parseISO(start_date);
-  //check if the parsed date is valid or not
-  if (isValid(parseDate)) {
+
+  // Check if the parsed date is valid
+  if (!isValid(parsedDate)) {
     return "Invalid Date";
   }
+
   const daysAgo = differenceInDays(new Date(), parsedDate);
   return `Posted ${daysAgo} days ago`;
 };
