@@ -120,7 +120,13 @@ export default function JobPage() {
                       Job Description
                     </h3>
                     <div className="prose prose-sm sm:prose-base max-w-none text-gray-700 bg-gray-50 rounded-lg p-4 sm:p-6 leading-relaxed shadow-sm">
-                      {cleanDescription(job.description)}
+                      {cleanDescription(job.description)
+                        .split(/[\n]/) // Split by newline or period
+                        .filter((line) => line.trim() !== "") // Remove empty lines
+                        .slice(0, 2) // Take first 2 items
+                        .map((point, index) => (
+                          <li key={index}>{point.trim()}</li>
+                        ))}
                     </div>
                   </section>
 
