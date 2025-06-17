@@ -81,13 +81,16 @@ const JobCard = ({ job }: { job: Job }) => {
             </div>
 
             {/* Right Side: Save and View Job Buttons */}
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+            <div className="flex flex-col gap-2 w-full sm:flex-row sm:items-center sm:gap-3 sm:w-auto">
               <SaveJobButton
                 jobId={job.id}
                 jobTitle={job.title}
-                className="hover:bg:blue-500"
+                className="hover:bg-blue-500 w-full sm:w-auto"
               />
-              <Link href={`/jobs/${job.encrypted_id}`}>
+              <Link
+                href={`/jobs/${job.encrypted_id}`}
+                className="w-full sm:w-auto"
+              >
                 <Button size="sm" className="text-sm w-full sm:w-auto">
                   View Job
                 </Button>

@@ -123,7 +123,7 @@ export default function JobPage() {
                       {cleanDescription(job.description)
                         .split(/[\n]/) // Split by newline or period
                         .filter((line) => line.trim() !== "") // Remove empty lines
-                        .slice(0, 2) // Take first 2 items
+                        // .slice(0, 2) // Take first 2 items
                         .map((point, index) => (
                           <li key={index}>{point.trim()}</li>
                         ))}
