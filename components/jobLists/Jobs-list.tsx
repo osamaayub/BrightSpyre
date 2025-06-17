@@ -257,7 +257,7 @@ export function JobsList({ filters }: { filters: Filters }) {
         <main className="w-full md:w-3/4">
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
+              {Array.from({ length: 1 }).map((_, i) => (
                 <JobCardSkeleton key={i} />
               ))}
             </div>
