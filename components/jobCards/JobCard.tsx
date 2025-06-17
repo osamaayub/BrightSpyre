@@ -30,8 +30,8 @@ const JobCard = ({ job }: { job: Job }) => {
                     <Image
                       src={job.organization_logo}
                       alt="Organization Logo"
-                      width={160}
-                      height={40}
+                      width={110}
+                      height={30}
                       className=" object-cover  max-w-full max-h-full  rounded-full"
                     />
                   </div>

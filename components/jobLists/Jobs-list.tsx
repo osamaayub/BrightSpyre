@@ -6,6 +6,7 @@ import JobCard from "@/components/jobCards/JobCard";
 import JobCardSkeleton from "@/components/jobskeleton/jobSkeleton";
 import { Pagination } from "@/components/pagination/pagination-job";
 import { Filters, Job, FilterToggles } from "@/types/filter";
+import { date } from "zod";
 
 export function JobsList({ filters }: { filters: Filters }) {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -26,12 +27,26 @@ export function JobsList({ filters }: { filters: Filters }) {
     async function fetchJobs() {
       setLoading(true);
       setError(null);
+
       try {
         const res = await axios.get("/api/jobs");
 
-        // Sort jobs in ascending order by posted date
-        setJobs(res.data.results || []);
-      } catch (err: string | any) {
+        const getDateOnlyUTC = (dateStr?: string) => {
+          if (!dateStr) return 0;
+          const date = new Date(dateStr);
+          return Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate()
+          );
+        };
+
+        const sortedJobs = (res.data.results || []).sort((a: Job, b: Job) => {
+          return getDateOnlyUTC(b.start_date) - getDateOnlyUTC(a.start_date);
+        });
+
+        setJobs(sortedJobs);
+      } catch (err: any) {
         setError(err.response?.data?.message || "An unexpected error occurred");
       } finally {
         setLoading(false);
@@ -117,6 +132,19 @@ export function JobsList({ filters }: { filters: Filters }) {
   const categoryList = getCounts("category_name");
   const orgList = getCounts("organization");
   const cityList = getCounts("city");
+
+  // Helper to calculate "days ago" for a job
+  const getPostedDaysAgo = (startDate?: string) => {
+    if (!startDate) return null;
+    const postedDate = new Date(startDate);
+    const today = new Date();
+    // Set both dates to midnight to avoid partial day issues
+    postedDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    const diffTime = today.getTime() - postedDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6">

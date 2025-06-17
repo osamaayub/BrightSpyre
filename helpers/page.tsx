@@ -20,18 +20,24 @@ export const estimateEquity = (salary: number): string => {
   return "1% – 2%"; // Lower salary typically offers more equity
 };
 
-// Function to calculate "Posted X days ago"
 export const getPostedDaysAgo = (start_date: string): string => {
+  // Ensure input is a non-empty string
+  if (!start_date || typeof start_date !== "string") {
+    return "Invalid Date";
+  }
+
   const parsedDate = parseISO(start_date);
 
-  // Check if the parsed date is valid
+  // Proper validation of the parsed date
   if (!isValid(parsedDate)) {
     return "Invalid Date";
   }
 
   const daysAgo = differenceInDays(new Date(), parsedDate);
+
   return `Posted ${daysAgo} days ago`;
 };
+
 //for sorting the jobs based on the start date
 export const getPostedDaysAgoNumber = (start_date: string): number => {
   return differenceInDays(new Date(), new Date(start_date));
