@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -51,6 +53,59 @@ export default function JobPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderJobDescription = (description: string) => {
+    const lines = cleanDescription(description)
+      .split(/\n+/)
+      .filter((line) => line.trim() !== "");
+
+    const result = [];
+    let scopeStarted = false;
+    let bulletBuffer: string[] = [];
+
+    const flushBullets = () => {
+      if (bulletBuffer.length > 0) {
+        result.push(
+          <ul key={`ul-${result.length}`} className="list-disc pl-5 space-y-1">
+            {bulletBuffer.map((text, i) => (
+              <li key={i}>{text}</li>
+            ))}
+          </ul>
+        );
+        bulletBuffer = [];
+      }
+    };
+
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+
+      if (/^[A-Z\s&\(\)\-]+:$/.test(trimmed)) {
+        flushBullets();
+
+        if (trimmed === "SCOPE OF ROLE:") {
+          scopeStarted = true;
+        }
+
+        result.push(
+          <p key={`heading-${index}`} className="font-semibold text-gray-800 mt-4">
+            {trimmed}
+          </p>
+        );
+      } else if (scopeStarted) {
+        bulletBuffer.push(trimmed);
+      } else {
+        result.push(
+          <p key={`intro-${index}`} className="text-gray-700 mb-2">
+            {trimmed}
+          </p>
+        );
+      }
+    });
+
+    flushBullets();
+
+    return result;
   };
 
   return (
@@ -119,70 +174,7 @@ export default function JobPage() {
                       Job Description
                     </h3>
                     <div className="prose prose-sm sm:prose-base max-w-none text-gray-700 bg-gray-50 rounded-lg p-4 sm:p-6 leading-relaxed shadow-sm">
-                      {(() => {
-                        const lines = cleanDescription(job.description)
-                          .split(/\n+/)
-                          .filter((line) => line.trim() !== "");
-
-                        const result = [];
-                        let currentSection = "";
-                        let bulletBuffer: string[] = [];
-                        let scopeStarted = false;
-
-                        const flushBullets = () => {
-                          if (bulletBuffer.length > 0) {
-                            result.push(
-                              <ul
-                                key={`ul-${result.length}`}
-                                className="list-disc pl-5 space-y-1"
-                              >
-                                {bulletBuffer.map((text, i) => (
-                                  <li key={i}>{text}</li>
-                                ))}
-                              </ul>
-                            );
-                            bulletBuffer = [];
-                          }
-                        };
-
-                        lines.forEach((line, index) => {
-                          const trimmed = line.trim();
-
-                          // Check if line is a heading like "RESPONSIBILITIES:"
-                          if (/^[A-Z\s&\(\)\-]+:$/.test(trimmed)) {
-                            flushBullets();
-                            currentSection = trimmed;
-                            if (trimmed === "SCOPE OF ROLE:") {
-                              scopeStarted = true;
-                            }
-
-                            result.push(
-                              <p
-                                key={`heading-${index}`}
-                                className="font-semibold text-gray-800 mt-4"
-                              >
-                                {trimmed}
-                              </p>
-                            );
-                          } else if (scopeStarted) {
-                            // After SCOPE OF ROLE: => bullet
-                            bulletBuffer.push(trimmed);
-                          } else {
-                            // Before SCOPE OF ROLE: => plain text
-                            result.push(
-                              <p
-                                key={`pre-scope-${index}`}
-                                className="text-gray-700 mb-2"
-                              >
-                                {trimmed}
-                              </p>
-                            );
-                          }
-                        });
-
-                        flushBullets();
-                        return result;
-                      })()}
+                      {renderJobDescription(job.description)}
                     </div>
                   </section>
 
@@ -190,7 +182,7 @@ export default function JobPage() {
 
                   <section>
                     <p className="text-gray-600 text-base sm:text-lg">
-                      end_date: {job?.end_date}
+                      End date: {job?.end_date}
                     </p>
                   </section>
                 </CardContent>
@@ -254,4 +246,3 @@ export default function JobPage() {
     </div>
   );
 }
-
