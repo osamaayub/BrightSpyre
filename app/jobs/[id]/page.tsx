@@ -61,7 +61,6 @@ export default function JobPage() {
         <p className="text-center text-red-600">{error}</p>
       ) : (
         <>
-          {/* Back button */}
           <div className="mb-8">
             <Link href="/jobs">
               <Button
@@ -81,7 +80,6 @@ export default function JobPage() {
                 <CardHeader className="pb-4 border-b border-gray-200">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="min-w-0">
-                      {/* min-w-0 to allow text truncation and prevent overflow */}
                       <CardTitle className="text-lg sm:text-2xl font-extrabold text-gray-900 truncate">
                         {job?.title}
                       </CardTitle>
@@ -121,11 +119,12 @@ export default function JobPage() {
                     </h3>
                     <div className="prose prose-sm sm:prose-base max-w-none text-gray-700 bg-gray-50 rounded-lg p-4 sm:p-6 leading-relaxed shadow-sm">
                       {cleanDescription(job.description)
-                        .split(/[\n]/) // Split by newline or period
-                        .filter((line) => line.trim() !== "") // Remove empty lines
-                        // .slice(0, 2) // Take first 2 items
-                        .map((point, index) => (
-                          <li key={index}>{point.trim()}</li>
+                        .split(/\n+/)
+                        .filter((line) => line.trim() !== "")
+                        .map((line, index) => (
+                          <p key={index} className="mb-2">
+                            {line.trim()}
+                          </p>
                         ))}
                     </div>
                   </section>
@@ -163,7 +162,7 @@ export default function JobPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center text-center space-y-4 px-4">
-                  <div className="relative w-48 h-auto  sm:w-24 sm:h-24 rounded-full overflow-hidden flex items-center justify-center text-4xl font-bold text-gray-400">
+                  <div className="relative w-48 h-auto sm:w-24 sm:h-24 rounded-full overflow-hidden flex items-center justify-center text-4xl font-bold text-gray-400">
                     {job?.organization?.charAt(0)}
                     {job.organization_logo && (
                       <Image
@@ -178,7 +177,7 @@ export default function JobPage() {
                   <h3 className="text-lg font-semibold whitespace-nowrap text-gray-800 truncate max-w-full">
                     {job?.organization}
                   </h3>
-                  <p className="text-gray-600 text-base sm:text-lg font-inter leading-relaxed px-2 md:px-6 max-w-full truncate [&_p]:font-inter [&_li]:font-inter [&_h1]:font-inter [&_h2]:font-inter">
+                  <p className="text-gray-600 text-base sm:text-lg font-inter leading-relaxed px-2 md:px-6 max-w-full truncate">
                     {cleanDescription(job?.description)}
                   </p>
                   <Link href={`${job.url}`}>
