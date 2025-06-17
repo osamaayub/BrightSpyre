@@ -61,6 +61,7 @@ export default function JobPage() {
         <p className="text-center text-red-600">{error}</p>
       ) : (
         <>
+          {/* Back button */}
           <div className="mb-8">
             <Link href="/jobs">
               <Button
@@ -118,14 +119,70 @@ export default function JobPage() {
                       Job Description
                     </h3>
                     <div className="prose prose-sm sm:prose-base max-w-none text-gray-700 bg-gray-50 rounded-lg p-4 sm:p-6 leading-relaxed shadow-sm">
-                      {cleanDescription(job.description)
-                        .split(/\n+/)
-                        .filter((line) => line.trim() !== "")
-                        .map((line, index) => (
-                          <p key={index} className="mb-2">
-                            {line.trim()}
-                          </p>
-                        ))}
+                      {(() => {
+                        const lines = cleanDescription(job.description)
+                          .split(/\n+/)
+                          .filter((line) => line.trim() !== "");
+
+                        const result = [];
+                        let currentSection = "";
+                        let bulletBuffer: string[] = [];
+                        let scopeStarted = false;
+
+                        const flushBullets = () => {
+                          if (bulletBuffer.length > 0) {
+                            result.push(
+                              <ul
+                                key={`ul-${result.length}`}
+                                className="list-disc pl-5 space-y-1"
+                              >
+                                {bulletBuffer.map((text, i) => (
+                                  <li key={i}>{text}</li>
+                                ))}
+                              </ul>
+                            );
+                            bulletBuffer = [];
+                          }
+                        };
+
+                        lines.forEach((line, index) => {
+                          const trimmed = line.trim();
+
+                          // Check if line is a heading like "RESPONSIBILITIES:"
+                          if (/^[A-Z\s&\(\)\-]+:$/.test(trimmed)) {
+                            flushBullets();
+                            currentSection = trimmed;
+                            if (trimmed === "SCOPE OF ROLE:") {
+                              scopeStarted = true;
+                            }
+
+                            result.push(
+                              <p
+                                key={`heading-${index}`}
+                                className="font-semibold text-gray-800 mt-4"
+                              >
+                                {trimmed}
+                              </p>
+                            );
+                          } else if (scopeStarted) {
+                            // After SCOPE OF ROLE: => bullet
+                            bulletBuffer.push(trimmed);
+                          } else {
+                            // Before SCOPE OF ROLE: => plain text
+                            result.push(
+                              <p
+                                key={`pre-scope-${index}`}
+                                className="text-gray-700 mb-2"
+                              >
+                                {trimmed}
+                              </p>
+                            );
+                          }
+                        });
+
+                        flushBullets();
+                        return result;
+                      })()}
                     </div>
                   </section>
 
@@ -197,3 +254,4 @@ export default function JobPage() {
     </div>
   );
 }
+
