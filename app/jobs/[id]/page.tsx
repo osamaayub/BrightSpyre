@@ -120,17 +120,17 @@ export default function JobPage() {
         flushBullets();
         insideSection = true;
         result.push(
-          <p key={`heading-${index}`} className="font-bold text-gray-800 mt-4">
+          <p
+            key={`heading-${index}`}
+            className="font-semibold text-gray-800 mt-4"
+          >
             {trimmed}
           </p>
         );
       } else if (insideSection && isSubheading(trimmed)) {
         flushBullets();
         result.push(
-          <p
-            key={`subheading-${index}`}
-            className="font-bold text-gray-700 mt-2"
-          >
+          <p key={`subheading-${index}`} className=" text-gray-700 mt-2">
             {trimmed}
           </p>
         );
@@ -138,7 +138,7 @@ export default function JobPage() {
         bulletBuffer.push(trimmed);
       } else {
         result.push(
-          <p key={`intro-${index}`} className="font-bold text-gray-700 mb-2">
+          <p key={`intro-${index}`} className="text-gray-700 mb-2">
             {trimmed}
           </p>
         );
