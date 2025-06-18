@@ -120,10 +120,7 @@ export default function JobPage() {
         flushBullets();
         insideSection = true;
         result.push(
-          <p
-            key={`heading-${index}`}
-            className="font-semibold text-gray-800 mt-4"
-          >
+          <p key={`heading-${index}`} className="font-bold text-gray-800 mt-4">
             {trimmed}
           </p>
         );
@@ -132,7 +129,7 @@ export default function JobPage() {
         result.push(
           <p
             key={`subheading-${index}`}
-            className="font-semibold text-gray-700 mt-2"
+            className="font-bold text-gray-700 mt-2"
           >
             {trimmed}
           </p>
@@ -141,7 +138,7 @@ export default function JobPage() {
         bulletBuffer.push(trimmed);
       } else {
         result.push(
-          <p key={`intro-${index}`} className="text-gray-700 mb-2">
+          <p key={`intro-${index}`} className="font-bold text-gray-700 mb-2">
             {trimmed}
           </p>
         );
@@ -215,7 +212,7 @@ export default function JobPage() {
 
                 <CardContent className="space-y-8">
                   <section className="w-full">
-                    <h3 className="text-lg sm:text-xl font-semibold mb-3 text-gray-900">
+                    <h3 className="text-lg sm:text-xl font-bold mb-3 text-gray-900">
                       Job Description
                     </h3>
                     <div
