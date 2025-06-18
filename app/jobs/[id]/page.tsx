@@ -61,7 +61,6 @@ export default function JobPage() {
     type: string;
     props: any;
   }
-
   const renderJobDescription = (description: string): JSX.Element[] => {
     const lines: string[] = cleanDescription(description)
       .split(/\n+/)
@@ -73,8 +72,6 @@ export default function JobPage() {
 
     const flushBullets = (): void => {
       if (bulletBuffer.length > 0) {
-        // Only render bullets if not immediately after a main heading
-        // Find the last pushed element
         const last = result[result.length - 1];
         const isLastMainHeading =
           last &&
@@ -92,7 +89,6 @@ export default function JobPage() {
             </ul>
           );
         } else {
-          // If last is a main heading, just add as paragraphs
           bulletBuffer.forEach((text: string, i: number) => {
             result.push(
               <p
@@ -116,7 +112,15 @@ export default function JobPage() {
     lines.forEach((line: string, index: number) => {
       const trimmed: string = line.trim();
 
-      if (isMainHeading(trimmed)) {
+      // Make only "Level 3" and "Scope Role description" bold
+      if (trimmed === "Level 3" || trimmed.toLowerCase() === "SCOPE OF ROLE") {
+        flushBullets();
+        result.push(
+          <p key={`bold-${index}`} className="font-bold text-gray-800 mt-4">
+            {trimmed}
+          </p>
+        );
+      } else if (isMainHeading(trimmed)) {
         flushBullets();
         insideSection = true;
         result.push(
