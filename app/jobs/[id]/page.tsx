@@ -64,104 +64,100 @@ export default function JobPage() {
 
   // (removed duplicate and problematic renderJobDescription implementation)
   const renderJobDescription = (description: string): JSX.Element[] => {
-    const lines: string[] = cleanDescription(description)
-      .split(/\n+/)
-      .filter((line: string) => line.trim() !== "");
+  const lines: string[] = cleanDescription(description)
+    .split(/\n+/)
+    .filter((line: string) => line.trim() !== "");
 
-    const result: JSX.Element[] = [];
-    let bulletBuffer: string[] = [];
-    let insideSection: boolean = false;
+  // Fallback: if no structured headings exist and all lines are short, render as simple bullets
+  const hasHeadings = lines.some((line) =>
+    /^[A-Z\s&()\-]+:$/.test(line.trim()) ||
+    line.trim().toLowerCase() === "scope of role"
+  );
+  if (!hasHeadings && lines.length >= 2 && lines.every((l) => l.length <= 100)) {
+    return [
+      <ul key="fallback-ul" className="list-disc pl-5 space-y-1">
+        {lines.map((line, i) => (
+          <li key={i}>{line.trim()}</li>
+        ))}
+      </ul>,
+    ];
+  }
 
-    const flushBullets = (): void => {
-      if (bulletBuffer.length > 0) {
-        const last = result[result.length - 1];
-        const isLastMainHeading =
-          last &&
-          last.type === "p" &&
-          last.props.className?.includes("font-bold text-gray-800");
-        if (!isLastMainHeading) {
-          result.push(
-            <ul
-              key={`ul-${result.length}`}
-              className="list-disc pl-5 space-y-1"
-            >
-              {bulletBuffer.map((text: string, i: number) => (
-                <li key={i}>{text}</li>
-              ))}
-            </ul>
-          );
-        } else {
-          bulletBuffer.forEach((text: string, i: number) => {
-            result.push(
-              <p
-                key={`desc-${result.length}-${i}`}
-                className="text-gray-700 mb-2"
-              >
-                {text}
-              </p>
-            );
-          });
-        }
-        bulletBuffer = [];
-      }
-    };
+  const result: JSX.Element[] = [];
+  let bulletBuffer: string[] = [];
+  let insideSection = false;
 
-    const isMainHeading = (text: string): boolean =>
-      /^[A-Z\s&()\-]+:$/.test(text);
-    const isSubheading = (text: string): boolean =>
-      /^[A-Z]/.test(text) && /^[^:]+$/.test(text) && text.length < 60;
-    const isLabelValuePair = (text: string): boolean =>
-      /^[A-Z][a-zA-Z\s]+:\s+.+/.test(text);
-
-    lines.forEach((line: string, index: number) => {
-      const trimmed: string = line.trim();
-
-      if (trimmed === "Level 3" || trimmed.toLowerCase() === "SCOPE OF ROLE") {
-        flushBullets();
-        result.push(
-          <p key={`bold-${index}`} className="font-bold text-gray-800 mt-4">
-            {trimmed}
-          </p>
-        );
-      } else if (isMainHeading(trimmed)) {
-        flushBullets();
-        insideSection = true;
-        result.push(
-          <p key={`heading-${index}`} className="font-bold text-gray-800 mt-4">
-            {trimmed}
-          </p>
-        );
-      } else if (insideSection && isLabelValuePair(trimmed)) {
-        flushBullets();
-        const [label, ...rest] = trimmed.split(":");
-        const value = rest.join(":").trim();
-        result.push(
-          <p key={`label-value-${index}`} className="text-gray-700 mt-2">
-            <span className="font-semibold">{label}:</span> {value}
-          </p>
-        );
-      } else if (insideSection && isSubheading(trimmed)) {
-        flushBullets();
-        result.push(
-          <p key={`subheading-${index}`} className="text-gray-700 mt-2">
-            {trimmed}
-          </p>
-        );
-      } else if (insideSection) {
-        bulletBuffer.push(trimmed);
-      } else {
-        result.push(
-          <p key={`intro-${index}`} className="text-gray-700 mb-2">
-            {trimmed}
-          </p>
-        );
-      }
-    });
-
-    flushBullets();
-
-    return result;
+  const flushBullets = (): void => {
+    if (bulletBuffer.length > 0) {
+      result.push(
+        <ul key={`ul-${result.length}`} className="list-disc pl-5 space-y-1">
+          {bulletBuffer.map((text, i) => (
+            <li key={i}>{text}</li>
+          ))}
+        </ul>
+      );
+      bulletBuffer = [];
+    }
   };
+
+  const isMainHeading = (text: string): boolean =>
+    /^[A-Z\s&()\-]+:$/.test(text);
+  const isSubheading = (text: string): boolean =>
+    /^[A-Z]/.test(text) && /^[^:]+$/.test(text) && text.length < 60;
+  const isLabelValuePair = (text: string): boolean =>
+    /^[A-Z][a-zA-Z\s]+:\s+.+/.test(text);
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+
+    if (trimmed === "Level 3" || trimmed.toLowerCase() === "scope of role") {
+      flushBullets();
+      insideSection = true;
+      result.push(
+        <p key={`bold-${index}`} className="font-bold text-gray-800 mt-4">
+          {trimmed}
+        </p>
+      );
+    } else if (isMainHeading(trimmed)) {
+      flushBullets();
+      insideSection = true;
+      result.push(
+        <p key={`heading-${index}`} className="font-bold text-gray-800 mt-4">
+          {trimmed}
+        </p>
+      );
+    } else if (insideSection && isLabelValuePair(trimmed)) {
+      flushBullets();
+      const [label, ...rest] = trimmed.split(":");
+      const value = rest.join(":").trim();
+      result.push(
+        <p key={`label-value-${index}`} className="text-gray-700 mt-2">
+          <span className="font-semibold">{label}:</span> {value}
+        </p>
+      );
+    } else if (insideSection && isSubheading(trimmed)) {
+      flushBullets();
+      result.push(
+        <p key={`subheading-${index}`} className="font-bold text-gray-700 mt-2">
+          {trimmed}
+        </p>
+      );
+    } else if (insideSection) {
+      bulletBuffer.push(trimmed);
+    } else {
+      result.push(
+        <p key={`intro-${index}`} className="text-gray-700 mb-2">
+          {trimmed}
+        </p>
+      );
+    }
+  });
+
+  flushBullets();
+
+  return result;
+};
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
