@@ -61,6 +61,8 @@ export default function JobPage() {
     type: string;
     props: any;
   }
+
+  // (removed duplicate and problematic renderJobDescription implementation)
   const renderJobDescription = (description: string): JSX.Element[] => {
     const lines: string[] = cleanDescription(description)
       .split(/\n+/)
@@ -76,7 +78,7 @@ export default function JobPage() {
         const isLastMainHeading =
           last &&
           last.type === "p" &&
-          last.props.className?.includes("font-semibold text-gray-800");
+          last.props.className?.includes("font-bold text-gray-800");
         if (!isLastMainHeading) {
           result.push(
             <ul
@@ -108,11 +110,12 @@ export default function JobPage() {
       /^[A-Z\s&()\-]+:$/.test(text);
     const isSubheading = (text: string): boolean =>
       /^[A-Z]/.test(text) && /^[^:]+$/.test(text) && text.length < 60;
+    const isLabelValuePair = (text: string): boolean =>
+      /^[A-Z][a-zA-Z\s]+:\s+.+/.test(text);
 
     lines.forEach((line: string, index: number) => {
       const trimmed: string = line.trim();
 
-      // Make only "Level 3" and "Scope Role description" bold
       if (trimmed === "Level 3" || trimmed.toLowerCase() === "SCOPE OF ROLE") {
         flushBullets();
         result.push(
@@ -124,17 +127,23 @@ export default function JobPage() {
         flushBullets();
         insideSection = true;
         result.push(
-          <p
-            key={`heading-${index}`}
-            className="font-semibold text-gray-800 mt-4"
-          >
+          <p key={`heading-${index}`} className="font-bold text-gray-800 mt-4">
             {trimmed}
+          </p>
+        );
+      } else if (insideSection && isLabelValuePair(trimmed)) {
+        flushBullets();
+        const [label, ...rest] = trimmed.split(":");
+        const value = rest.join(":").trim();
+        result.push(
+          <p key={`label-value-${index}`} className="text-gray-700 mt-2">
+            <span className="font-semibold">{label}:</span> {value}
           </p>
         );
       } else if (insideSection && isSubheading(trimmed)) {
         flushBullets();
         result.push(
-          <p key={`subheading-${index}`} className=" text-gray-700 mt-2">
+          <p key={`subheading-${index}`} className="text-gray-700 mt-2">
             {trimmed}
           </p>
         );
