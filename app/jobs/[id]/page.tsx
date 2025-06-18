@@ -1,8 +1,6 @@
-
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
 import { useParams } from "next/navigation";
@@ -55,44 +53,92 @@ export default function JobPage() {
     }
   };
 
-  const renderJobDescription = (description: string) => {
-    const lines = cleanDescription(description)
+  interface RenderJobDescriptionProps {
+    description: string;
+  }
+
+  interface ResultElement {
+    key: string;
+    type: string;
+    props: any;
+  }
+
+  const renderJobDescription = (description: string): JSX.Element[] => {
+    const lines: string[] = cleanDescription(description)
       .split(/\n+/)
-      .filter((line) => line.trim() !== "");
+      .filter((line: string) => line.trim() !== "");
 
-    const result = [];
-    let scopeStarted = false;
+    const result: JSX.Element[] = [];
     let bulletBuffer: string[] = [];
+    let insideSection: boolean = false;
 
-    const flushBullets = () => {
+    const flushBullets = (): void => {
       if (bulletBuffer.length > 0) {
-        result.push(
-          <ul key={`ul-${result.length}`} className="list-disc pl-5 space-y-1">
-            {bulletBuffer.map((text, i) => (
-              <li key={i}>{text}</li>
-            ))}
-          </ul>
-        );
+        // Only render bullets if not immediately after a main heading
+        // Find the last pushed element
+        const last = result[result.length - 1];
+        const isLastMainHeading =
+          last &&
+          last.type === "p" &&
+          last.props.className?.includes("font-semibold text-gray-800");
+        if (!isLastMainHeading) {
+          result.push(
+            <ul
+              key={`ul-${result.length}`}
+              className="list-disc pl-5 space-y-1"
+            >
+              {bulletBuffer.map((text: string, i: number) => (
+                <li key={i}>{text}</li>
+              ))}
+            </ul>
+          );
+        } else {
+          // If last is a main heading, just add as paragraphs
+          bulletBuffer.forEach((text: string, i: number) => {
+            result.push(
+              <p
+                key={`desc-${result.length}-${i}`}
+                className="text-gray-700 mb-2"
+              >
+                {text}
+              </p>
+            );
+          });
+        }
         bulletBuffer = [];
       }
     };
 
-    lines.forEach((line, index) => {
-      const trimmed = line.trim();
+    const isMainHeading = (text: string): boolean =>
+      /^[A-Z\s&()\-]+:$/.test(text);
+    const isSubheading = (text: string): boolean =>
+      /^[A-Z]/.test(text) && /^[^:]+$/.test(text) && text.length < 60;
 
-      if (/^[A-Z\s&\(\)\-]+:$/.test(trimmed)) {
+    lines.forEach((line: string, index: number) => {
+      const trimmed: string = line.trim();
+
+      if (isMainHeading(trimmed)) {
         flushBullets();
-
-        if (trimmed === "SCOPE OF ROLE:") {
-          scopeStarted = true;
-        }
-
+        insideSection = true;
         result.push(
-          <p key={`heading-${index}`} className="font-semibold text-gray-800 mt-4">
+          <p
+            key={`heading-${index}`}
+            className="font-semibold text-gray-800 mt-4"
+          >
             {trimmed}
           </p>
         );
-      } else if (scopeStarted) {
+      } else if (insideSection && isSubheading(trimmed)) {
+        flushBullets();
+        result.push(
+          <p
+            key={`subheading-${index}`}
+            className="font-semibold text-gray-700 mt-2"
+          >
+            {trimmed}
+          </p>
+        );
+      } else if (insideSection) {
         bulletBuffer.push(trimmed);
       } else {
         result.push(
@@ -169,15 +215,34 @@ export default function JobPage() {
                 </CardHeader>
 
                 <CardContent className="space-y-8">
-                  <section>
+                  <section className="w-full">
                     <h3 className="text-lg sm:text-xl font-semibold mb-3 text-gray-900">
                       Job Description
                     </h3>
-                    <div className="prose prose-sm sm:prose-base max-w-none text-gray-700 bg-gray-50 rounded-lg p-4 sm:p-6 leading-relaxed shadow-sm">
-                      {renderJobDescription(job.description)}
+                    <div
+                      className="
+                        prose
+                        prose-sm
+                        sm:prose-base
+                        max-w-none
+                        text-gray-700
+                        bg-gray-50
+                        rounded-lg
+                        p-3
+                        sm:p-4
+                        md:p-6
+                        leading-relaxed
+                        shadow-sm
+                        w-full
+                        break-words
+                        overflow-x-auto
+                      "
+                    >
+                      <div className="space-y-2">
+                        {renderJobDescription(job.description)}
+                      </div>
                     </div>
                   </section>
-
                   <Separator />
 
                   <section>
