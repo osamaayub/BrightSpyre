@@ -63,6 +63,7 @@ export default function JobPage() {
   }
 
   // (removed duplicate and problematic renderJobDescription implementation)
+<<<<<<< HEAD
   const renderJobDescription = (description: string): JSX.Element[] => {
   const lines: string[] = cleanDescription(description)
     .split(/\n+/)
@@ -98,6 +99,84 @@ export default function JobPage() {
       );
       bulletBuffer = [];
     }
+=======
+  const renderJobDescription = (description: string) => {
+    const lines = description
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter((line) => line !== "");
+
+    const result: React.ReactNode[] = [];
+    let bulletBuffer: string[] = [];
+    let numberBuffer: string[] = [];
+
+    const flushBullets = () => {
+      if (bulletBuffer.length > 0) {
+        result.push(
+          <ul
+            key={`ul-${result.length}`}
+            className="list-disc list-inside space-y-1 pl-4"
+          >
+            {bulletBuffer.map((bullet, idx) => (
+              <li key={idx}>{bullet}</li>
+            ))}
+          </ul>
+        );
+        bulletBuffer = [];
+      }
+    };
+
+    const flushNumbers = () => {
+      if (numberBuffer.length > 0) {
+        result.push(
+          <ol
+            key={`ol-${result.length}`}
+            className="list-decimal list-inside space-y-1 pl-4"
+          >
+            {numberBuffer.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ol>
+        );
+        numberBuffer = [];
+      }
+    };
+
+    lines.forEach((line, index) => {
+      const isSubheading = /^[A-Z\s&\-\(\)]+:?$/.test(line); // ALL CAPS or ends with colon
+      const isNumbered = /^\d+[\.\)]\s+/.test(line); // e.g. 1. or 1)
+
+      if (isSubheading) {
+        flushBullets();
+        flushNumbers();
+        // Remove bullets or numbers from headings/subheadings
+        result.push(
+          <p key={`heading-${index}`} className="font-bold mt-4">
+            {line.replace(/^[-•\d\.\)\s]+/, "").replace(/:$/, "")}
+          </p>
+        );
+      } else if (isNumbered) {
+        flushBullets();
+        // Remove the number prefix for display
+        numberBuffer.push(line.replace(/^\d+[\.\)]\s*/, ""));
+      } else if (/^[-•]\s+/.test(line)) {
+        flushNumbers();
+        bulletBuffer.push(line.replace(/^[-•]\s*/, ""));
+      } else {
+        flushBullets();
+        flushNumbers();
+        result.push(
+          <p key={`text-${index}`} className="mt-1">
+            {line}
+          </p>
+        );
+      }
+    });
+
+    flushBullets();
+    flushNumbers();
+    return result;
+>>>>>>> e9e1a46 (added bullet points for single job)
   };
 
   const isMainHeading = (text: string): boolean =>
@@ -160,7 +239,7 @@ export default function JobPage() {
 
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 sm:py-10">
       {loading ? (
         <p className="text-center text-gray-600">Loading jobs...</p>
       ) : error ? (
@@ -168,7 +247,7 @@ export default function JobPage() {
       ) : (
         <>
           {/* Back button */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <Link href="/jobs">
               <Button
                 variant="ghost"
@@ -180,9 +259,9 @@ export default function JobPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Job Details */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-6 sm:space-y-8">
               <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="pb-4 border-b border-gray-200">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -219,32 +298,35 @@ export default function JobPage() {
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-8">
+                <CardContent className="space-y-6 sm:space-y-8">
                   <section className="w-full">
                     <h3 className="text-lg sm:text-xl font-bold mb-3 text-gray-900">
                       Job Description
                     </h3>
                     <div
                       className="
-                        prose
-                        prose-sm
-                        sm:prose-base
-                        max-w-none
-                        text-gray-700
-                        bg-gray-50
-                        rounded-lg
-                        p-3
-                        sm:p-4
-                        md:p-6
-                        leading-relaxed
-                        shadow-sm
-                        w-full
-                        break-words
-                        overflow-x-auto
-                      "
+              prose
+              prose-sm
+              sm:prose-base
+              max-w-none
+              text-gray-700
+              bg-gray-50
+              rounded-lg
+              p-2
+              sm:p-4
+              md:p-6
+              leading-relaxed
+              shadow-sm
+              w-full
+              break-words
+              overflow-x-auto
+              "
                     >
                       <div className="space-y-2">
-                        {renderJobDescription(job.description)}
+                        {/* Render description with bold headings and subheadings, text underneath */}
+                        {renderJobDescription(
+                          cleanDescription(job.description)
+                        )}
                       </div>
                     </div>
                   </section>
@@ -257,14 +339,14 @@ export default function JobPage() {
                   </section>
                 </CardContent>
 
-                <CardFooter className="flex flex-wrap gap-4 justify-center sm:justify-start pt-6 border-t border-gray-200">
+                <CardFooter className="flex flex-col sm:flex-row gap-4 justify-center sm:justify-start pt-6 border-t border-gray-200">
                   <ApplyButton
                     jobId={job?.id}
                     jobTitle={job?.title}
                     company={job?.organization}
                   />
                   <SaveJobButton
-                    className="w-full"
+                    className="w-full sm:w-auto"
                     jobId={job?.id}
                     jobTitle={job?.title}
                   />
@@ -280,16 +362,16 @@ export default function JobPage() {
                     Company Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col items-center text-center space-y-4 px-4">
-                  <div className="relative w-48 h-auto sm:w-24 sm:h-24 rounded-full overflow-hidden flex items-center justify-center text-4xl font-bold text-gray-400">
+                <CardContent className="flex flex-col items-center text-center space-y-4 px-2 sm:px-4">
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden flex items-center justify-center text-4xl font-bold text-gray-400 bg-gray-100">
                     {job?.organization?.charAt(0)}
                     {job.organization_logo && (
                       <Image
                         src={job.organization_logo}
                         alt="Organization Logo"
-                        width={260}
-                        height={20}
-                        className="object-cover rounded-full"
+                        width={112}
+                        height={112}
+                        className="object-cover rounded-full absolute inset-0"
                       />
                     )}
                   </div>
