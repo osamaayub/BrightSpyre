@@ -62,15 +62,15 @@ const JobCard = ({ job }: { job: Job }) => {
           </div>
 
           {/* Job Description */}
-          <ul className="list-disc pl-5 text-sm font-inter text-gray-600 space-y-1">
+          <div className="pl-0 text-sm font-inter text-gray-600 space-y-1">
             {cleanDescription(job.description)
-              .split(/[\n]/) // Split by newline or period
-              .filter((line) => line.trim() !== "") // Remove empty lines
-              .slice(0, 2) // Take first 2 items
+              .split(/[\n]/)
+              .filter((line) => line.trim() !== "")
+              .slice(0, 2)
               .map((point, index) => (
-                <li key={index}>{point.trim()}</li>
+                <div key={index}>{point.trim()}</div>
               ))}
-          </ul>
+          </div>
 
           {/* Footer: Cities, Salary, and Buttons in One Row */}
           <div className="mt-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-x-4">

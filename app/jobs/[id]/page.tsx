@@ -63,62 +63,42 @@ export default function JobPage() {
   }
 
   // (removed duplicate and problematic renderJobDescription implementation)
-<<<<<<< HEAD
+
   const renderJobDescription = (description: string): JSX.Element[] => {
-  const lines: string[] = cleanDescription(description)
-    .split(/\n+/)
-    .filter((line: string) => line.trim() !== "");
-
-  // Fallback: if no structured headings exist and all lines are short, render as simple bullets
-  const hasHeadings = lines.some((line) =>
-    /^[A-Z\s&()\-]+:$/.test(line.trim()) ||
-    line.trim().toLowerCase() === "scope of role"
-  );
-  if (!hasHeadings && lines.length >= 2 && lines.every((l) => l.length <= 100)) {
-    return [
-      <ul key="fallback-ul" className="list-disc pl-5 space-y-1">
-        {lines.map((line, i) => (
-          <li key={i}>{line.trim()}</li>
-        ))}
-      </ul>,
-    ];
-  }
-
-  const result: JSX.Element[] = [];
-  let bulletBuffer: string[] = [];
-  let insideSection = false;
-
-  const flushBullets = (): void => {
-    if (bulletBuffer.length > 0) {
-      result.push(
-        <ul key={`ul-${result.length}`} className="list-disc pl-5 space-y-1">
-          {bulletBuffer.map((text, i) => (
-            <li key={i}>{text}</li>
-          ))}
-        </ul>
-      );
-      bulletBuffer = [];
-    }
-=======
-  const renderJobDescription = (description: string) => {
-    const lines = description
+    const lines: string[] = cleanDescription(description)
       .split(/\n+/)
-      .map((line) => line.trim())
-      .filter((line) => line !== "");
+      .filter((line: string) => line.trim() !== "");
 
-    const result: React.ReactNode[] = [];
+    // Fallback: if no structured headings exist and all lines are short, render as simple bullets
+    const hasHeadings = lines.some(
+      (line) =>
+        /^[A-Z\s&()\-]+:$/.test(line.trim()) ||
+        line.trim().toLowerCase() === "scope of role"
+    );
+    if (
+      !hasHeadings &&
+      lines.length >= 2 &&
+      lines.every((l) => l.length <= 100)
+    ) {
+      return [
+        <ul key="fallback-ul" className="list-disc pl-5 space-y-1">
+          {lines.map((line, i) => (
+            <li key={i}>{line.trim()}</li>
+          ))}
+        </ul>,
+      ];
+    }
+
+    const result: JSX.Element[] = [];
     let bulletBuffer: string[] = [];
-    let numberBuffer: string[] = [];
+    let insideSection = false;
 
-    const flushBullets = () => {
+    const flushBullets = (): void => {
       if (bulletBuffer.length > 0) {
         result.push(
-          <ul
-            key={`ul-${result.length}`}
-            className="list-disc list-inside space-y-1 pl-4"
-          >
-            {bulletBuffer.map((bullet, idx) => (
-              <li key={idx}>{bullet}</li>
+          <ul key={`ul-${result.length}`} className="list-disc pl-5 space-y-1">
+            {bulletBuffer.map((text, i) => (
+              <li key={i}>{text}</li>
             ))}
           </ul>
         );
@@ -126,117 +106,66 @@ export default function JobPage() {
       }
     };
 
-    const flushNumbers = () => {
-      if (numberBuffer.length > 0) {
-        result.push(
-          <ol
-            key={`ol-${result.length}`}
-            className="list-decimal list-inside space-y-1 pl-4"
-          >
-            {numberBuffer.map((item, idx) => (
-              <li key={idx}>{item}</li>
-            ))}
-          </ol>
-        );
-        numberBuffer = [];
-      }
-    };
+    const isMainHeading = (text: string): boolean =>
+      /^[A-Z\s&()\-]+:$/.test(text);
+    const isSubheading = (text: string): boolean =>
+      /^[A-Z]/.test(text) && /^[^:]+$/.test(text) && text.length < 60;
+    const isLabelValuePair = (text: string): boolean =>
+      /^[A-Z][a-zA-Z\s]+:\s+.+/.test(text);
 
     lines.forEach((line, index) => {
-      const isSubheading = /^[A-Z\s&\-\(\)]+:?$/.test(line); // ALL CAPS or ends with colon
-      const isNumbered = /^\d+[\.\)]\s+/.test(line); // e.g. 1. or 1)
+      const trimmed = line.trim();
 
-      if (isSubheading) {
+      if (trimmed === "Level 3" || trimmed.toLowerCase() === "scope of role") {
         flushBullets();
-        flushNumbers();
-        // Remove bullets or numbers from headings/subheadings
+        insideSection = true;
         result.push(
-          <p key={`heading-${index}`} className="font-bold mt-4">
-            {line.replace(/^[-•\d\.\)\s]+/, "").replace(/:$/, "")}
+          <p key={`bold-${index}`} className="font-bold text-gray-800 mt-4">
+            {trimmed}
           </p>
         );
-      } else if (isNumbered) {
+      } else if (isMainHeading(trimmed)) {
         flushBullets();
-        // Remove the number prefix for display
-        numberBuffer.push(line.replace(/^\d+[\.\)]\s*/, ""));
-      } else if (/^[-•]\s+/.test(line)) {
-        flushNumbers();
-        bulletBuffer.push(line.replace(/^[-•]\s*/, ""));
-      } else {
-        flushBullets();
-        flushNumbers();
+        insideSection = true;
         result.push(
-          <p key={`text-${index}`} className="mt-1">
-            {line}
+          <p key={`heading-${index}`} className="font-bold text-gray-800 mt-4">
+            {trimmed}
+          </p>
+        );
+      } else if (insideSection && isLabelValuePair(trimmed)) {
+        flushBullets();
+        const [label, ...rest] = trimmed.split(":");
+        const value = rest.join(":").trim();
+        result.push(
+          <p key={`label-value-${index}`} className="text-gray-700 mt-2">
+            <span className="font-semibold">{label}:</span> {value}
+          </p>
+        );
+      } else if (insideSection && isSubheading(trimmed)) {
+        flushBullets();
+        result.push(
+          <p
+            key={`subheading-${index}`}
+            className="font-bold text-gray-700 mt-2"
+          >
+            {trimmed}
+          </p>
+        );
+      } else if (insideSection) {
+        bulletBuffer.push(trimmed);
+      } else {
+        result.push(
+          <p key={`intro-${index}`} className="text-gray-700 mb-2">
+            {trimmed}
           </p>
         );
       }
     });
 
     flushBullets();
-    flushNumbers();
+
     return result;
->>>>>>> e9e1a46 (added bullet points for single job)
   };
-
-  const isMainHeading = (text: string): boolean =>
-    /^[A-Z\s&()\-]+:$/.test(text);
-  const isSubheading = (text: string): boolean =>
-    /^[A-Z]/.test(text) && /^[^:]+$/.test(text) && text.length < 60;
-  const isLabelValuePair = (text: string): boolean =>
-    /^[A-Z][a-zA-Z\s]+:\s+.+/.test(text);
-
-  lines.forEach((line, index) => {
-    const trimmed = line.trim();
-
-    if (trimmed === "Level 3" || trimmed.toLowerCase() === "scope of role") {
-      flushBullets();
-      insideSection = true;
-      result.push(
-        <p key={`bold-${index}`} className="font-bold text-gray-800 mt-4">
-          {trimmed}
-        </p>
-      );
-    } else if (isMainHeading(trimmed)) {
-      flushBullets();
-      insideSection = true;
-      result.push(
-        <p key={`heading-${index}`} className="font-bold text-gray-800 mt-4">
-          {trimmed}
-        </p>
-      );
-    } else if (insideSection && isLabelValuePair(trimmed)) {
-      flushBullets();
-      const [label, ...rest] = trimmed.split(":");
-      const value = rest.join(":").trim();
-      result.push(
-        <p key={`label-value-${index}`} className="text-gray-700 mt-2">
-          <span className="font-semibold">{label}:</span> {value}
-        </p>
-      );
-    } else if (insideSection && isSubheading(trimmed)) {
-      flushBullets();
-      result.push(
-        <p key={`subheading-${index}`} className="font-bold text-gray-700 mt-2">
-          {trimmed}
-        </p>
-      );
-    } else if (insideSection) {
-      bulletBuffer.push(trimmed);
-    } else {
-      result.push(
-        <p key={`intro-${index}`} className="text-gray-700 mb-2">
-          {trimmed}
-        </p>
-      );
-    }
-  });
-
-  flushBullets();
-
-  return result;
-};
-
 
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 sm:py-10">
