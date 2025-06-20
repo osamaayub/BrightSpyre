@@ -62,7 +62,7 @@ const JobCard = ({ job }: { job: Job }) => {
           </div>
 
           {/* Job Description */}
-          <div className="pl-0 text-sm font-inter text-gray-600 space-y-1">
+          <div className="pl-0 text-sm font-inter text-gray-600 space-y-1 truncate">
             {cleanDescription(job.description)
               .split(/[\n]/)
               .filter((line) => line.trim() !== "")

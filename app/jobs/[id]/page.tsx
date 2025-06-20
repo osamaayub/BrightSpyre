@@ -65,105 +65,104 @@ export default function JobPage() {
   // (removed duplicate and problematic renderJobDescription implementation)
 
   const renderJobDescription = (description: string): JSX.Element[] => {
-    const lines: string[] = cleanDescription(description)
+    const lines = cleanDescription(description)
       .split(/\n+/)
-      .filter((line: string) => line.trim() !== "");
-
-    // Fallback: if no structured headings exist and all lines are short, render as simple bullets
-    const hasHeadings = lines.some(
-      (line) =>
-        /^[A-Z\s&()\-]+:$/.test(line.trim()) ||
-        line.trim().toLowerCase() === "scope of role"
-    );
-    if (
-      !hasHeadings &&
-      lines.length >= 2 &&
-      lines.every((l) => l.length <= 100)
-    ) {
-      return [
-        <ul key="fallback-ul" className="list-disc pl-5 space-y-1">
-          {lines.map((line, i) => (
-            <li key={i}>{line.trim()}</li>
-          ))}
-        </ul>,
-      ];
-    }
+      .map((line) => line.trim())
+      .filter((line) => line !== "");
 
     const result: JSX.Element[] = [];
     let bulletBuffer: string[] = [];
-    let insideSection = false;
+    let inBullets = false;
+    let lastHeading = "";
 
-    const flushBullets = (): void => {
+    const flushBullets = (index: number) => {
       if (bulletBuffer.length > 0) {
         result.push(
-          <ul key={`ul-${result.length}`} className="list-disc pl-5 space-y-1">
-            {bulletBuffer.map((text, i) => (
-              <li key={i}>{text}</li>
+          <ul
+            key={`ul-${index}`}
+            className="list-disc list-inside space-y-1 text-gray-700 ml-6"
+          >
+            {bulletBuffer.map((item, i) => (
+              <li key={`li-${index}-${i}`}>{item.replace(/^[-•*]\s*/, "")}</li>
             ))}
           </ul>
         );
         bulletBuffer = [];
+        inBullets = false;
       }
     };
 
-    const isMainHeading = (text: string): boolean =>
-      /^[A-Z\s&()\-]+:$/.test(text);
-    const isSubheading = (text: string): boolean =>
-      /^[A-Z]/.test(text) && /^[^:]+$/.test(text) && text.length < 60;
-    const isLabelValuePair = (text: string): boolean =>
-      /^[A-Z][a-zA-Z\s]+:\s+.+/.test(text);
+    const isLikelyHeading = (text: string) =>
+      /^[A-Z][A-Za-z0-9\s\-()&]{0,50}$/.test(text) ||
+      /^[A-Z].+:\s*$/.test(text);
+
+    const isLikelyBullet = (text: string) => /^[-•*]\s+/.test(text);
+
+    const isLabelValue = (text: string) => /^[A-Z][a-z\s]+:\s+.+/.test(text);
+
+    const headingsToAlwaysBullet = [
+      "responsibilities",
+      "accountabilit",
+      "requirement",
+      "qualification",
+      "duties",
+      "tasks",
+    ];
 
     lines.forEach((line, index) => {
-      const trimmed = line.trim();
-
-      if (trimmed === "Level 3" || trimmed.toLowerCase() === "scope of role") {
-        flushBullets();
-        insideSection = true;
+      if (isLikelyHeading(line)) {
+        flushBullets(index);
+        lastHeading = line.toLowerCase().replace(/:$/, "").trim();
         result.push(
-          <p key={`bold-${index}`} className="font-bold text-gray-800 mt-4">
-            {trimmed}
+          <p key={`heading-${index}`} className="font-bold text-gray-900 mt-4">
+            {line.replace(/:$/, "")}
           </p>
         );
-      } else if (isMainHeading(trimmed)) {
-        flushBullets();
-        insideSection = true;
+        // Only start bullets for headings except "job purpose"
+        if (
+          headingsToAlwaysBullet.some((h) => lastHeading.includes(h)) &&
+          lastHeading !== "job purpose"
+        ) {
+          bulletBuffer = [];
+          inBullets = true;
+        } else {
+          inBullets = false;
+        }
+      } else if (isLabelValue(line)) {
+        flushBullets(index);
+        const [label, ...rest] = line.split(":");
         result.push(
-          <p key={`heading-${index}`} className="font-bold text-gray-800 mt-4">
-            {trimmed}
+          <p key={`label-${index}`} className="text-gray-700 mt-1">
+            <span className="font-semibold">{label}:</span>{" "}
+            {rest.join(":").trim()}
           </p>
         );
-      } else if (insideSection && isLabelValuePair(trimmed)) {
-        flushBullets();
-        const [label, ...rest] = trimmed.split(":");
-        const value = rest.join(":").trim();
-        result.push(
-          <p key={`label-value-${index}`} className="text-gray-700 mt-2">
-            <span className="font-semibold">{label}:</span> {value}
-          </p>
-        );
-      } else if (insideSection && isSubheading(trimmed)) {
-        flushBullets();
-        result.push(
-          <p
-            key={`subheading-${index}`}
-            className="font-bold text-gray-700 mt-2"
-          >
-            {trimmed}
-          </p>
-        );
-      } else if (insideSection) {
-        bulletBuffer.push(trimmed);
+      } else if (
+        isLikelyBullet(line) ||
+        (inBullets &&
+          headingsToAlwaysBullet.some((h) => lastHeading.includes(h)) &&
+          lastHeading !== "job purpose" &&
+          line.length > 2)
+      ) {
+        bulletBuffer.push(line.replace(/^[-•*]\s*/, ""));
+        inBullets = true;
+      } else if (inBullets && line === "") {
+        flushBullets(index);
+      } else if (inBullets && !isLikelyBullet(line)) {
+        flushBullets(index);
+        bulletBuffer.push(line);
+        inBullets = true;
       } else {
+        flushBullets(index);
         result.push(
-          <p key={`intro-${index}`} className="text-gray-700 mb-2">
-            {trimmed}
+          <p key={`para-${index}`} className="text-gray-700 mb-2">
+            {line}
           </p>
         );
       }
     });
 
-    flushBullets();
-
+    flushBullets(lines.length + 1);
     return result;
   };
 
@@ -234,22 +233,19 @@ export default function JobPage() {
                     </h3>
                     <div
                       className="
-              prose
-              prose-sm
-              sm:prose-base
-              max-w-none
-              text-gray-700
-              bg-gray-50
-              rounded-lg
-              p-2
-              sm:p-4
-              md:p-6
-              leading-relaxed
-              shadow-sm
-              w-full
-              break-words
-              overflow-x-auto
-              "
+          max-w-none
+          text-gray-700
+          bg-gray-50
+          rounded-lg
+          p-2
+          sm:p-4
+          md:p-6
+          leading-relaxed
+          shadow-sm
+          w-full
+          break-words
+          overflow-x-auto
+          "
                     >
                       <div className="space-y-2">
                         {/* Render description with bold headings and subheadings, text underneath */}
